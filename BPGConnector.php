@@ -55,7 +55,7 @@ class BPGConnector {
     if (!pg_dbname($db)) {
       $this->close($db);
       $this->setError($this->context->getErrorMessage('bReport_nodb'));
-      return FASLE;
+      return FALSE;
     }
       
     return $db;
