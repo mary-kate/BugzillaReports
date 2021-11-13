@@ -213,10 +213,6 @@ table.bugzilla tr.some td div.C9 {
 }
 /* Dates */
 div.date2 {
-	color: #333;
-	text-align: center;
-}
-div.date2 {
 	color: #555;
 	text-align: center;
 }
@@ -226,10 +222,6 @@ div.date3 {
 }
 div.date4 {
 	color: #999;
-	text-align: center;
-}
-span.date5 {
-	color: #aaa;
 	text-align: center;
 }
 span.date5 {
