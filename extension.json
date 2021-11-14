@@ -8,8 +8,10 @@
 	"requires": {
 		"MediaWiki": ">= 1.29.0"
 	},
-	"ExtensionMessagesFiles": {
-		"BugzillaReports": "/BugzillaReports.i18n.php"
+	"MessagesDirs": {
+		"BugzillaReports": [
+			"i18n"
+		]
 	},
 	"AutoloadClasses": {
 		"BMWExtension": "BMWExtension.php",
