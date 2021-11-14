@@ -34,14 +34,14 @@ require_once("init.php");
 #
 #define('BUGZILLAREPORTS',1);
 #$bzScriptPath="";
-#$wgBugzillaReports = array(
+#$wgBugzillaReports = [
 #	'host'		=> "localhost",
 #	'database'	=> "bugs",
 #	'user'		=> "bugs",
 #	'password'	=> "password",
 #	'bzserver'  => "http://myserver",
 #	'maxrows'	=> "300"
-#);
+#];
 if ( !defined('BUGZILLAREPORTS')  ) {
 	die('This Bugzilla Reports script has not been enabled' );
 }
@@ -55,7 +55,7 @@ $bugzillaReport->setRawHTML(true);
 # documentation on parameters available
 #
 
-$out=$bugzillaReport->render(array("priority=P1,P2","lastcomment=1"));
+$out=$bugzillaReport->render(["priority=P1,P2","lastcomment=1"]);
 ?>
 <html>
   <head>

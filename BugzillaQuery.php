@@ -20,7 +20,7 @@
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
 class BugzillaQuery extends BSQLQuery {
-	public $supportedParameters = array(
+	public $supportedParameters = [
 		'alias'         => 'field-id',
 		'assigned'      => 'field-date',
 		'attachments'   => 'field-number',
@@ -95,9 +95,9 @@ class BugzillaQuery extends BSQLQuery {
 		'votes'         => 'field-number',
 		'work'          => 'field-number',
 		'zeroasblank'   => 'boolean'    # Render '0' as blank, if false rendered as '0' (default=true)
-	);
+	];
 
-	public $defaultParameters = array(
+	public $defaultParameters = [
 		'bzurl'           => 'show',
 		'columns'         => 'id,priority,status,severity,version,product,summary,url',
 		'customprefix'    => 'cf_',
@@ -111,9 +111,9 @@ class BugzillaQuery extends BSQLQuery {
 		'sort'            => 'priority,status',
 		'sortable'        => '1',
 		'zeroasblank'     => 'true'
-	);
+	];
 
-	public $columnName = array(
+	public $columnName = [
 		'alias'       => 'Alias',
 		'assigned'    => 'Assigned',
 		'attachments' => '@',
@@ -152,23 +152,23 @@ class BugzillaQuery extends BSQLQuery {
 		'verified'    => 'Verified',
 		'votes'       => 'Votes',
 		'work'        => 'W'
-	);
+	];
 
-	public $columnLabelName = array(
+	public $columnLabelName = [
 		'estimated'   => 'Estimated',
 		'priority'    => 'Priority',
 		'remaining'   => 'Remaining',
 		'work'        => 'Work'
-	);
+	];
 
 	# Fields and their mapping to the value in the results sets
-	public $fieldMapping = array(
+	public $fieldMapping = [
 		'cc'          => 'cc',
 		'from'        => 'raisedby',
 		'to'          => 'assignedto',
-	);
+	];
 
-	public $fieldSQLColumn = array(
+	public $fieldSQLColumn = [
 		'assigned'    => 'assignedactivity.bug_when',
 		'attachments' => 'attachments.nattachments',
 		'cc'          => 'ccprofiles.login_name',
@@ -194,10 +194,10 @@ class BugzillaQuery extends BSQLQuery {
 		'url'         => 'bug_file_loc',
 		'verified'    => 'verifiedactivity.bug_when',
 		'work'        => 'work_time'
-	);
+	];
 
 	# Bugzilla Query field names
-	public $fieldBZQuery = array(
+	public $fieldBZQuery = [
 		'blocks'      => 'blocked',
 		'hardware'    => 'rep_platform',
 		'id'          => 'bug_id',
@@ -207,14 +207,14 @@ class BugzillaQuery extends BSQLQuery {
 		'severity'    => 'bug_severity',
 		'status'      => 'bug_status',
 		'to'          => 'assigned_to'
-	);
+	];
 
-	public $fieldDefaultOrder = array(
+	public $fieldDefaultOrder = [
 		'modified'    => 'desc',
 		'votes'       => 'desc'
-	);
+	];
 
-	public $formats = array(
+	public $formats = [
 		'alias'     => 'id',
 		'assigned'  => 'date',
 		'blocks'    => 'id',
@@ -237,53 +237,53 @@ class BugzillaQuery extends BSQLQuery {
 		'url'       => 'url',
 		'votes'     => 'number',
 		'work'      => 'number'
-	);
+	];
 
-	public $fieldValues = array(
+	public $fieldValues = [
 		'priority'    => 'P1,P2,P3,P4,P5',
 		'status'      => 'ASSIGNED,NEW,REOPENED,RESOLVED,VERIFIED,CLOSED',
 		'severity'    => 'blocker,critical,major,normal,minor,trivial,enhancement'
-	);
+	];
 
-	public $sortMapping = array(
+	public $sortMapping = [
 		'deadline'    => "COALESCE(deadline, '2100-01-01')",
 		'milestone'   => "COALESCE(NULLIF(milestone,'---'),'XXXXX')",
 		'id'          => 'bugs.bug_id'
-	);
+	];
 
-	public $dependsRowColumns = array(
+	public $dependsRowColumns = [
 		'depends'         => 'block',
 		'dependsto'       => 'title',   # Output in the title
 		'dependsstatus'   => 'extra',   # Output as greyed
 		'dependssummary'  => 'block',
-	);
+	];
 
-	public $blocksRowColumns = array(
+	public $blocksRowColumns = [
 		'blocks'          => 'block',
 		'blocksto'        => 'title',   # Output in the title
 		'blocksstatus'    => 'extra',
 		'blockssummary'   => 'block'
-	);
+	];
 
 	#
 	# Title for a given value rendering
 	#
-	public $valueTitle = array(
+	public $valueTitle = [
 		'alias'       => 'id,alias',
 		'blocks'      => 'blocks,blocksalias',
 		'depends'     => 'depends,dependsalias',
 		'id'          => 'id,alias'
-	);
+	];
 
-	private $supportedCustomFields = array();	# Supported custom fields
-	private $requiredCustomFields = array();	# Custom fields that are required for the report
+	private $supportedCustomFields = [];	# Supported custom fields
+	private $requiredCustomFields = [];	# Custom fields that are required for the report
 	private $bzFieldCount = 0;					# Field counter for BZ URL
 	private $customPrefixLength;				# Cached length of custom prefix length
 
 	public $bzURL = '';				 # Bugzilla URL to run query
 	public $explitlyOneValue; # Set if report is explictly one value
 
-	public static $fieldIds = array();
+	public static $fieldIds = [];
 	public static $buglistServerRelativeUri = '/buglist.cgi?';
 
 	#

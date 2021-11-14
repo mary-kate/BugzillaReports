@@ -20,13 +20,13 @@
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
 
-$messages = array();
+$messages = [];
 
-$messages['en'] = array(
+$messages['en'] = [
 	'bReport_noconnection' => 'Can\'t get database connection ($1@$2) : $3',
 	'bReport_nodb' => 'Database not found : $1',
 	'bReport_sqlerror' => 'Error running the sql : $1'
-);
+];
 
 $magicWords = [];
 

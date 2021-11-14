@@ -26,12 +26,12 @@ abstract class BSQLQuery {
 	#
 	# Parameter values
 	#
-	private $parameters = array();
+	private $parameters = [];
 
 	#
 	# Arbitary cached values for private use
 	#
-	private $bsql_cache = array();
+	private $bsql_cache = [];
 
 	#
 	# Date long time in the future, useful for sorting purposes
@@ -44,7 +44,7 @@ abstract class BSQLQuery {
 	# $fieldsRequired array so we can optimise the SQL
 	# ... no point in wasting energy
 	#
-	public $fieldsRequired = array();
+	public $fieldsRequired = [];
 
 	# Cached array of columns that we actually want to render
 	public $columnsToRender;
@@ -54,15 +54,15 @@ abstract class BSQLQuery {
 
 	# Columns implicitly removed or added, note that explict setting
 	# overrides this
-	private $implicityAddedColumns = array();
-	private $implicityRemovedColumns = array();
+	private $implicityAddedColumns = [];
+	private $implicityRemovedColumns = [];
 
 	# Columns implicitly sort and order, note that explict setting
 	# overrides this
-	public $implicitParameters = array();
+	public $implicitParameters = [];
 
 	# Cached versions so we only calculate once
-	public $cache = array();
+	public $cache = [];
 
 	abstract protected function getFormats();
 	abstract protected function getDefaultSort();
@@ -814,7 +814,7 @@ abstract class BSQLQuery {
 	# Return sort with mapping
 	#
 	public function getMappedSort() {
-		$mappedSort = array();
+		$mappedSort = [];
 
 		foreach ( explode( ',', $this->getSort() ) as $column ) {
 			#
@@ -939,7 +939,7 @@ abstract class BSQLQuery {
 						$array[1] . ':' . $array[2]
 					);
 				$baseColumns = explode( ',', $this->getDefault( 'columns' ) );
-				$newColumns = array();
+				$newColumns = [];
 				$deltaColumns = explode( ',', $array[2] );
 				$defaultOperation = $array[1];
 				foreach ( $deltaColumns as $deltaColumn ) {
@@ -1027,7 +1027,7 @@ abstract class BSQLQuery {
 				#
 				# Explicit columns - so don't apply implicit rules
 				#
-				$this->columnsToRender = array();
+				$this->columnsToRender = [];
 				foreach ( explode( ',', $this->getExplicit( 'columns' ) ) as $column ) {
 					$newColumn = $this->getColumnNameAndRegisterTitle( $column );
 					array_push( $this->columnsToRender, $newColumn );
@@ -1095,7 +1095,7 @@ abstract class BSQLQuery {
 	# from php 5.2
 	#
 	private function array_fill_keys( $array, $value = null ) {
-		$newArray = array();
+		$newArray = [];
 		foreach ( $array as $key ) {
 			if ( $value ) {
 				$newArray[$key] = $value;

@@ -67,7 +67,7 @@ class BugzillaQueryRenderer {
 		}
 
 		# Initialise details row logic
-		$detailsRowColumns = array();
+		$detailsRowColumns = [];
 		$arrayOfDetailRowColumns = explode( ',', $this->query->get( 'detailsrow' ) );
 		foreach ( $arrayOfDetailRowColumns as $detailRowColumn ) {
 			$detailsRowColumns[$detailRowColumn] = 1;
@@ -89,7 +89,7 @@ class BugzillaQueryRenderer {
 		$arrayOfTotals;
 		if ( $this->query->get( 'total' ) ) {
 			$arrayOfTotalColumns = explode( ',', $this->query->get( 'total' ) );
-			$arrayOfTotals = array();
+			$arrayOfTotals = [];
 			foreach ( $arrayOfTotalColumns as $totalColumn ) {
 				$arrayOfTotals[$totalColumn] = 0;
 			}
@@ -150,8 +150,8 @@ class BugzillaQueryRenderer {
 		$count = 0;
 		$localMaxRows = $this->query->getMaxRows();
 		$localMaxRowsForBarChart = $this->query->getMaxRowsForBarChart();
-		$groupValue = array();
-		$groupTotal = array();
+		$groupValue = [];
+		$groupTotal = [];
 		$groups;
 		$doGrouping = 0;
 
@@ -624,7 +624,7 @@ class BugzillaQueryRenderer {
 	# Initialise the bar array
 	#
 	private function getBarArray() {
-		$barArray = array();
+		$barArray = [];
 		if ( array_key_exists( $this->query->get( 'bar' ), $this->query->fieldValues ) ) {
 			foreach ( explode( ',', $this->query->fieldValues[$this->query->get( 'bar' )] ) as $key ) {
 				$barArray[$key] = 0;
