@@ -171,7 +171,7 @@ class BugzillaReports extends BMWExtension {
 
 	protected function disableCache() {
 		$this->debug && $this->debug( 'Disabling parser cache for this page' );
-		$this->parser->disableCache();
+		$this->parser->updateCacheExpiry( 0 );
 	}
 
 	#
