@@ -587,7 +587,7 @@ abstract class BSQLQuery {
 	 */
 	public function getValueTitle( $line, $column ) {
 		$title = '';
-		if ( array_key_exists( $column,$this->valueTitle ) ) {
+		if ( array_key_exists( $column, $this->valueTitle ) ) {
 			$columns = explode( ',', $this->valueTitle[$column] );
 			foreach ( $columns as $column ) {
 				$title .= $line[$column] . ' ';

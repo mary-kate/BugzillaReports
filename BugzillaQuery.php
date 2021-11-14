@@ -480,12 +480,12 @@ class BugzillaQuery extends BSQLQuery {
 						}
 					}
 				} elseif ( $type == 'field-keywords' ) {
-					$where .= 'and EXISTS (SELECT keywordid,keywords.bug_id from ' .
-							$this->connector->getTable( 'keywords' ) . ' as keywords ' .
+					$where .= 'AND EXISTS (SELECT keywordid,keywords.bug_id FROM ' .
+							$this->connector->getTable( 'keywords' ) . ' AS keywords ' .
 							' LEFT JOIN ' .
-							$this->connector->getTable( 'keyworddefs' ) . ' as keyworddefs ' .
-							' on keywords.keywordid=keyworddefs.id ' .
-							' where keywords.bug_id=bugs.bug_id ' .
+							$this->connector->getTable( 'keyworddefs' ) . ' AS keyworddefs ' .
+							' ON keywords.keywordid=keyworddefs.id ' .
+							' WHERE keywords.bug_id=bugs.bug_id ' .
 							$this->processField( $column, $fieldValue, 'field' ) .
 							')';
 					} else {
@@ -511,7 +511,7 @@ class BugzillaQuery extends BSQLQuery {
 			}
 
 			if ( $this->get( 'search' ) ) {
-				$where .= " and short_desc like '%" . $this->get( 'search' ) . "%'";
+				$where .= " AND short_desc LIKE '%" . $this->get( 'search' ) . "%'";
 			}
 
 			#
@@ -542,129 +542,129 @@ class BugzillaQuery extends BSQLQuery {
 		$sql = '';
 
 		if ( $this->get( 'format' ) == 'count' ) {
-			$sql .= 'SELECT count(distinct(id)) as count from (';
+			$sql .= 'SELECT COUNT(DISTINCT(id)) AS count FROM (';
 		}
-		$sql .= 'SELECT DISTINCT bugs.bug_id as id';
+		$sql .= 'SELECT DISTINCT bugs.bug_id AS id';
 		if ( $this->isRequired( 'alias' ) ) {
-			$sql .= ', aliases.alias as alias';
+			$sql .= ', aliases.alias AS alias';
 		}
 		if ( $this->isRequired( 'assigned' ) ) {
-			$sql .= ', assignedactivity.bug_when as assigned';
+			$sql .= ', assignedactivity.bug_when AS assigned';
 		}
 		if ( $this->isRequired( 'attachments' ) ) {
-			$sql .= ', attachments.nattachments as attachments ';
+			$sql .= ', attachments.nattachments AS attachments ';
 		}
 		if ( $this->isRequired( 'blocks' ) ) {
-			$sql .= ', blockstab.blocks as blocks, blockstab.blocksalias as blocksalias, blockstab.blockssummary as blockssummary,blockstab.blocksstatus as blocksstatus, blockstab.blockspriority as blockspriority, blockstab.realname as blocksto';
+			$sql .= ', blockstab.blocks AS blocks, blockstab.blocksalias AS blocksalias, blockstab.blockssummary AS blockssummary,blockstab.blocksstatus AS blocksstatus, blockstab.blockspriority AS blockspriority, blockstab.realname AS blocksto';
 		}
 		if ( $this->isRequired( 'cc' ) ) {
 			if ( $this->get( 'nameformat' ) == 'login' ) {
-				$sql .= ', ccprofiles.login_name as cc';
+				$sql .= ', ccprofiles.login_name AS cc';
 			} else {
-				$sql .= ', ccprofiles.realname as cc';
+				$sql .= ', ccprofiles.realname AS cc';
 			}
 		}
 		if ( $this->isRequired( 'closed' ) ) {
-			$sql .= ', closedactivity.bug_when as closed';
+			$sql .= ', closedactivity.bug_when AS closed';
 		}
 		if ( $this->isRequired( 'component' ) ) {
-			$sql .= ', components.name as component';
+			$sql .= ', components.name AS component';
 		}
 		if ( $this->isRequired( 'created' ) ) {
-			$sql .= ', creation_ts as created';
+			$sql .= ', creation_ts AS created';
 		}
 		if ( $this->isRequired( 'deadline' ) ) {
 			$sql .= ', deadline';
 		}
 		if ( $this->isRequired( 'depends' ) ) {
-			$sql .= ', dependstab.depends as depends, dependstab.dependsalias as dependsalias, dependstab.dependssummary as dependssummary,dependstab.dependsstatus as dependsstatus, dependstab.dependspriority as dependspriority, dependstab.realname as dependsto';
+			$sql .= ', dependstab.depends AS depends, dependstab.dependsalias AS dependsalias, dependstab.dependssummary AS dependssummary,dependstab.dependsstatus AS dependsstatus, dependstab.dependspriority AS dependspriority, dependstab.realname AS dependsto';
 		}
 		if ( $this->isRequired( 'flag' ) ) {
 			if ( $this->get( 'nameformat' ) == 'login' ) {
-				$sql .= ', flagprofiles.flagfrom_login as flagfrom';
-				$sql .= ', flagprofiles.flag_login as flag';
+				$sql .= ', flagprofiles.flagfrom_login AS flagfrom';
+				$sql .= ', flagprofiles.flag_login AS flag';
 			} else {
-				$sql .= ', flagprofiles.flagfrom_realname as flagfrom';
-				$sql .= ', flagprofiles.flag_realname as flag';
+				$sql .= ', flagprofiles.flagfrom_realname AS flagfrom';
+				$sql .= ', flagprofiles.flag_realname AS flag';
 			}
-			$sql .= ', flagprofiles.flagname as flagname';
-			$sql .= ', flagprofiles.flagdate as flagdate';
+			$sql .= ', flagprofiles.flagname AS flagname';
+			$sql .= ', flagprofiles.flagdate AS flagdate';
 		} elseif ( $this->isRequired( 'quickflag' ) ) {
-			$sql .= ', quickflag.flagdate as flagdate';
+			$sql .= ', quickflag.flagdate AS flagdate';
 		}
 		if ( $this->isRequired( 'estimated' ) ) {
-			$sql .= ', estimated_time as estimated';
+			$sql .= ', estimated_time AS estimated';
 		}
 		if ( $this->isRequired( 'from' ) ) {
 			if ( $this->get( 'nameformat' ) == 'login' ) {
-				$sql .= ', reporterprofiles.login_name as raisedby';
+				$sql .= ', reporterprofiles.login_name AS raisedby';
 			} else {
-				$sql .= ', reporterprofiles.realname as raisedby';
+				$sql .= ', reporterprofiles.realname AS raisedby';
 			}
 		}
 		if ( $this->isRequired( 'hardware' ) ) {
-			$sql .= ', rep_platform as hardware';
+			$sql .= ', rep_platform AS hardware';
 		}
 		if ( $this->isRequired( 'keywords' ) ) {
-			$sql .= ', (SELECT group_concat(keyworddefs.name) FROM bugs.keyworddefs WHERE keyworddefs.id in (SELECT keywords.keywordid FROM bugs.keywords WHERE keywords.bug_id=bugs.bug_id )) as keywords';
+			$sql .= ', (SELECT GROUP_CONCAT(keyworddefs.name) FROM bugs.keyworddefs WHERE keyworddefs.id IN (SELECT keywords.keywordid FROM bugs.keywords WHERE keywords.bug_id=bugs.bug_id )) AS keywords';
 		}
 		if ( $this->isRequired( 'milestone' ) ) {
-			$sql .= ', target_milestone as milestone';
+			$sql .= ', target_milestone AS milestone';
 		}
 		if ( $this->isRequired( 'lastcomment' ) ) {
 			$sql .= ', longdescslastcomment.thetext';
 		}
 		if ( $this->isRequired( 'modified' ) ) {
-			$sql .= ', lastdiffed as modified';
+			$sql .= ', lastdiffed AS modified';
 		}
 		if ( $this->isRequired( 'os' ) ) {
-			$sql .= ', op_sys as os';
+			$sql .= ', op_sys AS os';
 		}
 		#
 		# Priority always required because it used as class name for bug row
 		#
 		$sql .= ', priority';
 		if ( $this->isRequired( 'product' ) ) {
-			$sql .= ', products.name as product';
+			$sql .= ', products.name AS product';
 		}
 		if ( $this->isRequired( 'qa' ) ) {
 			if ( $this->get( 'nameformat' ) == 'login' ) {
-				$sql .= ', qaprofiles.login_name as qa';
+				$sql .= ', qaprofiles.login_name AS qa';
 			} else {
-				$sql .= ', qaprofiles.realname as qa';
+				$sql .= ', qaprofiles.realname AS qa';
 			}
 		}
 		if ( $this->isRequired( 'remaining' ) ) {
-			$sql .= ', remaining_time as remaining';
+			$sql .= ', remaining_time AS remaining';
 		}
 		if ( $this->isRequired( 'reopened' ) ) {
-			$sql .= ', reopenedactivity.bug_when as reopened';
+			$sql .= ', reopenedactivity.bug_when AS reopened';
 		}
 		if ( $this->isRequired( 'resolution' ) ) {
 			$sql .= ', resolution';
 		}
 		if ( $this->isRequired( 'resolved' ) ) {
-			$sql .= ', resolvedactivity.bug_when as resolved';
+			$sql .= ', resolvedactivity.bug_when AS resolved';
 		}
 		#
 		# Severity always required because it used as class name for bug row
 		#
-		$sql .= ', bug_severity as severity';
+		$sql .= ', bug_severity AS severity';
 		if ( $this->isRequired( 'status' ) ) {
-			$sql .= ', bug_status as status';
+			$sql .= ', bug_status AS status';
 		}
 		if ( $this->isRequired( 'summary' ) ) {
-			$sql .= ', short_desc as summary';
+			$sql .= ', short_desc AS summary';
 		}
 		if ( $this->isRequired( 'to' ) ) {
 			if ( $this->get( 'nameformat' ) == 'login' ) {
-				$sql .= ', profiles.login_name as assignedto';
+				$sql .= ', profiles.login_name AS assignedto';
 			} else {
-				$sql .= ', profiles.realname as assignedto';
+				$sql .= ', profiles.realname AS assignedto';
 			}
 		}
 		if ( $this->isRequired( 'url' ) ) {
-			$sql .= ', bug_file_loc as url';
+			$sql .= ', bug_file_loc AS url';
 		}
 		if ( $this->isRequired( 'version' ) ) {
 			$sql .= ', version';
@@ -673,7 +673,7 @@ class BugzillaQuery extends BSQLQuery {
 			$sql .= ', votes';
 		}
 		if ( $this->isRequired( 'work' ) ) {
-			$sql .= ', SUM(longdescswork.work_time) as work';
+			$sql .= ', SUM(longdescswork.work_time) AS work';
 		}
 
 		#
@@ -690,32 +690,32 @@ class BugzillaQuery extends BSQLQuery {
 		$sql .= ' FROM ' . $this->connector->getTable( 'bugs' );
 		if ( $this->isRequired( 'assigned' ) ) {
 			$sql .= ' LEFT JOIN ' .
-				' (SELECT bug_id, MAX(bug_when) as bug_when from ' .
+				' (SELECT bug_id, MAX(bug_when) AS bug_when FROM ' .
 				$this->connector->getTable( 'bugs_activity' ) .
-				' where fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
-				" and added='ASSIGNED' GROUP BY bug_id) as assignedactivity on bugs.bug_id=assignedactivity.bug_id";
+				' WHERE fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
+				" AND added='ASSIGNED' GROUP BY bug_id) AS assignedactivity ON bugs.bug_id=assignedactivity.bug_id";
 		}
 		if ( $this->isRequired( 'attachments' ) ) {
-			$sql .= ' LEFT JOIN (SELECT bug_id as attachmentbugid, COUNT(attach_id) as nattachments from '.
+			$sql .= ' LEFT JOIN (SELECT bug_id as attachmentbugid, COUNT(attach_id) AS nattachments FROM '.
 				$this->connector->getTable( 'attachments' ) .
-				' group by attachmentbugid) as ' .
-				'attachments on attachments.attachmentbugid=bugs.bug_id';
+				' GROUP BY attachmentbugid) AS ' .
+				'attachments ON attachments.attachmentbugid=bugs.bug_id';
 		}
 		if ( $this->isRequired( 'blocks' ) ) {
-			$sql .= ' LEFT JOIN (SELECT dependson,blocked as blocks, blockedalias.alias as blocksalias, blockedbugs.short_desc as blockssummary, blockedbugs.bug_status as blocksstatus, blockedbugs.priority as blockspriority,login_name,realname from '.
+			$sql .= ' LEFT JOIN (SELECT dependson,blocked AS blocks, blockedalias.alias AS blocksalias, blockedbugs.short_desc AS blockssummary, blockedbugs.bug_status AS blocksstatus, blockedbugs.priority AS blockspriority,login_name,realname FROM ' .
 				$this->connector->getTable( 'dependencies' )
 				. ' INNER JOIN ' .
 				$this->connector->getTable( 'bugs' ) .
-				' as blockedbugs ON dependencies.blocked=blockedbugs.bug_id' .
+				' AS blockedbugs ON dependencies.blocked=blockedbugs.bug_id' .
 				' LEFT JOIN ' .
 				$this->connector->getTable( 'bugs_aliases' ) .
-				' as blockedalias ON blockedalias.bug_id=blockedbugs.bug_id' .
+				' AS blockedalias ON blockedalias.bug_id=blockedbugs.bug_id' .
 				' INNER JOIN ' .
 				$this->connector->getTable( 'profiles' ) .
 				' ON blockedbugs.assigned_to=profiles.userid' .
-				' where 1=1 ' . $this->getWhereClause( $this->get( 'dependsstatus' ), 'blockedbugs.bug_status' ) .
-				' order by blockedbugs.priority' .
-				') as blockstab ON blockstab.dependson=bugs.bug_id';
+				' WHERE 1=1 ' . $this->getWhereClause( $this->get( 'dependsstatus' ), 'blockedbugs.bug_status' ) .
+				' ORDER BY blockedbugs.priority' .
+				') AS blockstab ON blockstab.dependson=bugs.bug_id';
 		}
 		if ( $this->isRequired( 'component' ) ) {
 			$sql .= ' LEFT JOIN ' .
@@ -723,7 +723,7 @@ class BugzillaQuery extends BSQLQuery {
 				' on bugs.component_id=components.id';
 		}
 		if ( $this->isRequired( 'cc' ) ) {
-			$sql .= ' INNER JOIN (SELECT bug_id,login_name,realname from ' .
+			$sql .= ' INNER JOIN (SELECT bug_id,login_name,realname FROM ' .
 				$this->connector->getTable( 'cc' ) .
 				' INNER JOIN ' .
 				$this->connector->getTable( 'profiles' ) .
@@ -731,64 +731,64 @@ class BugzillaQuery extends BSQLQuery {
 			if ( $this->get( 'cc' ) ) {
 				$sql .= $this->getWhereClause( $this->get( 'cc' ), 'profiles.login_name' );
 			}
-			$sql .= ') as ' .
-				'ccprofiles on ccprofiles.bug_id=bugs.bug_id';
+			$sql .= ') AS ' .
+				'ccprofiles ON ccprofiles.bug_id=bugs.bug_id';
 		}
 		if ( $this->isRequired( 'closed' ) ) {
 			$sql .= ' LEFT JOIN ' .
-				' (SELECT bug_id, MAX(bug_when) as bug_when from ' .
+				' (SELECT bug_id, MAX(bug_when) AS bug_when FROM ' .
 				$this->connector->getTable( 'bugs_activity' ) .
-				' where fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
-				" and added='CLOSED' GROUP BY bug_id) as closedactivity on bugs.bug_id=closedactivity.bug_id";
+				' WHERE fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
+				" AND added='CLOSED' GROUP BY bug_id) AS closedactivity ON bugs.bug_id=closedactivity.bug_id";
 		}
 		if ( $this->isRequired( 'depends' ) ) {
-			$sql .= ' LEFT JOIN (SELECT blocked,dependson as depends, dependsonalias.alias as dependsalias, dependsonbugs.short_desc as dependssummary, dependsonbugs.bug_status as dependsstatus, dependsonbugs.priority as dependspriority, login_name, realname from ' .
+			$sql .= ' LEFT JOIN (SELECT blocked,dependson AS depends, dependsonalias.alias AS dependsalias, dependsonbugs.short_desc AS dependssummary, dependsonbugs.bug_status AS dependsstatus, dependsonbugs.priority AS dependspriority, login_name, realname FROM ' .
 				$this->connector->getTable( 'dependencies' )
 				. ' INNER JOIN ' .
 				$this->connector->getTable( 'bugs' ) .
-				' as dependsonbugs ON dependencies.dependson=dependsonbugs.bug_id' .
+				' AS dependsonbugs ON dependencies.dependson=dependsonbugs.bug_id' .
 				' LEFT JOIN ' . $this->connector->getTable( 'bugs_aliases' ) .
-				' as dependsonalias ON dependsonalias.bug_id=dependsonbugs.bug_id' .
+				' AS dependsonalias ON dependsonalias.bug_id=dependsonbugs.bug_id' .
 				' INNER JOIN ' .
 				$this->connector->getTable( 'profiles' ) .
 				' ON dependsonbugs.assigned_to=profiles.userid' .
-				' where 1=1 ' . $this->getWhereClause( $this->get( 'dependsstatus' ), 'dependsonbugs.bug_status' ) .
-				' order by dependsonbugs.priority' .
-				') as dependstab ON dependstab.blocked=bugs.bug_id';
+				' WHERE 1=1 ' . $this->getWhereClause( $this->get( 'dependsstatus' ), 'dependsonbugs.bug_status' ) .
+				' ORDER BY dependsonbugs.priority' .
+				') AS dependstab ON dependstab.blocked=bugs.bug_id';
 		}
 		if ( $this->isRequired( 'flag' ) ) {
-			$sql .= ' INNER JOIN (SELECT bug_id,creation_date as flagdate,flagsto.login_name as flag_login,flagsto.realname as flag_realname,flagsfrom.login_name as flagfrom_login, flagsfrom.realname as flagfrom_realname,flagtypes.name as flagname from '.
+			$sql .= ' INNER JOIN (SELECT bug_id,creation_date AS flagdate,flagsto.login_name AS flag_login,flagsto.realname AS flag_realname,flagsfrom.login_name AS flagfrom_login, flagsfrom.realname AS flagfrom_realname,flagtypes.name AS flagname FROM ' .
 				$this->connector->getTable( 'flags' ) .
 				' INNER JOIN ' .
 				$this->connector->getTable( 'flagtypes' ) .
 				' ON flags.type_id=flagtypes.id INNER JOIN ' .
 				$this->connector->getTable( 'profiles' ) .
-				' as flagsto ON flags.requestee_id=flagsto.userid INNER JOIN ' .
+				' AS flagsto ON flags.requestee_id=flagsto.userid INNER JOIN ' .
 				$this->connector->getTable( 'profiles' ) .
-				" as flagsfrom ON flags.setter_id=flagsfrom.userid where status='?'";
+				" AS flagsfrom ON flags.setter_id=flagsfrom.userid WHERE status='?'";
 			if ( $this->get( 'flag' ) ) {
 				$sql .= $this->getWhereClause( $this->get( 'flag' ), 'flagsto.login_name' );
 			}
 			$sql .= ') as ' .
 				'flagprofiles on flagprofiles.bug_id=bugs.bug_id';
 		} elseif ( $this->isRequired( 'quickflag' ) ) {
-			$sql .= ' LEFT JOIN (SELECT bug_id as quickflagbugid, MAX(creation_date) as flagdate from ' .
+			$sql .= ' LEFT JOIN (SELECT bug_id AS quickflagbugid, MAX(creation_date) AS flagdate FROM ' .
 				$this->connector->getTable( 'flags' ) .
-				" where status='?' group by quickflagbugid) as " .
+				" WHERE status='?' GROUP BY quickflagbugid) AS " .
 				'quickflag on quickflag.quickflagbugid=bugs.bug_id';
 		}
 		if ( $this->isRequired( 'from' ) ) {
 			$sql .= ' LEFT JOIN ' .
 				$this->connector->getTable( 'profiles' ) .
-				' as reporterprofiles on bugs.reporter=reporterprofiles.userid';
+				' AS reporterprofiles ON bugs.reporter=reporterprofiles.userid';
 		}
 		if ( $this->isRequired( 'lastcomment' ) ) {
-			$sql .= ' LEFT JOIN (SELECT MAX(longdescs.bug_when) as sub_comment_when, ' .
-				'longdescs.bug_id as sub_bug_id FROM ' .
+			$sql .= ' LEFT JOIN (SELECT MAX(longdescs.bug_when) AS sub_comment_when, ' .
+				'longdescs.bug_id AS sub_bug_id FROM ' .
 				$this->connector->getTable( 'longdescs' ) .
 				' GROUP BY longdescs.bug_id) ' .
 				'descs ON bugs.bug_id=descs.sub_bug_id LEFT JOIN ' .
-				$this->connector->getTable( 'longdescs' ) . ' as longdescslastcomment ON ' .
+				$this->connector->getTable( 'longdescs' ) . ' AS longdescslastcomment ON ' .
 				'longdescslastcomment.bug_when=sub_comment_when';
 		}
 		if ( $this->isRequired( 'product' ) ) {
@@ -799,50 +799,50 @@ class BugzillaQuery extends BSQLQuery {
 		if ( $this->isRequired( 'qa' ) ) {
 			$sql .= ' LEFT JOIN ' .
 				$this->connector->getTable( 'profiles' ) .
-				' as qaprofiles on bugs.qa_contact=qaprofiles.userid';
+				' AS qaprofiles ON bugs.qa_contact=qaprofiles.userid';
 		}
 		if ( $this->isRequired( 'reopened' ) ) {
 			$sql .= ' LEFT JOIN ' .
-				' (SELECT bug_id, MAX(bug_when) as bug_when from ' .
+				' (SELECT bug_id, MAX(bug_when) AS bug_when FROM ' .
 				$this->connector->getTable( 'bugs_activity' ) .
-				' where fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
-				" and added='REOPENED' GROUP BY bug_id) as reopenedactivity on bugs.bug_id=reopenedactivity.bug_id";
+				' WHERE fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
+				" AND added='REOPENED' GROUP BY bug_id) AS reopenedactivity ON bugs.bug_id=reopenedactivity.bug_id";
 		}
 		if ( $this->isRequired( 'resolved' ) ) {
 			$sql .= ' LEFT JOIN ' .
-				' (SELECT bug_id, MAX(bug_when) as bug_when from ' .
+				' (SELECT bug_id, MAX(bug_when) AS bug_when FROM ' .
 				$this->connector->getTable( 'bugs_activity' ) .
-				' where fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
-				" and added='RESOLVED' GROUP BY bug_id) as resolvedactivity on bugs.bug_id=resolvedactivity.bug_id";
+				' WHERE fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
+				" AND added='RESOLVED' GROUP BY bug_id) AS resolvedactivity ON bugs.bug_id=resolvedactivity.bug_id";
 		}
 		if ( $this->isRequired( 'to' ) ) {
 			$sql .= ' LEFT JOIN ' .
 				$this->connector->getTable( 'profiles' ) .
-				' on bugs.assigned_to=profiles.userid';
+				' ON bugs.assigned_to=profiles.userid';
 		}
 		if ( $this->isRequired( 'verified' ) ) {
 			$sql .= ' LEFT JOIN ' .
-				' (SELECT bug_id, MAX(bug_when) as bug_when from ' .
+				' (SELECT bug_id, MAX(bug_when) AS bug_when from ' .
 				$this->connector->getTable( 'bugs_activity' ) .
-				' where fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
-				" and added='VERIFIED' GROUP BY bug_id) as verifiedactivity on bugs.bug_id=verifiedactivity.bug_id";
+				' WHERE fieldid=' . BugzillaQuery::$fieldIds['bug_status'] .
+				" AND added='VERIFIED' GROUP BY bug_id) AS verifiedactivity ON bugs.bug_id=verifiedactivity.bug_id";
 		}
 		if ( $this->isRequired( 'alias' ) ) {
 			$sql .= ' LEFT JOIN ' .
 				$this->connector->getTable( 'bugs_aliases' ) .
-				' as aliases ON aliases.bug_id=bugs.bug_id';
+				' AS aliases ON aliases.bug_id=bugs.bug_id';
 		}
 		if ( $this->isRequired( 'work' ) ) {
-			$sql .= ', ' . $this->connector->getTable( 'longdescs' ) . ' as longdescswork';
+			$sql .= ', ' . $this->connector->getTable( 'longdescs' ) . ' AS longdescswork';
 		}
-		$sql .= ' where 1=1 ' . $where;
+		$sql .= ' WHERE 1=1 ' . $where;
 		if ( $this->isRequired( 'work' ) ) {
-			$sql .= ' and longdescswork.bug_id=bugs.bug_id GROUP BY bugs.bug_id';
+			$sql .= ' AND longdescswork.bug_id=bugs.bug_id GROUP BY bugs.bug_id';
 		}
-		$sql .= ' order by ' .
+		$sql .= ' ORDER BY ' .
 			$this->getMappedSort() . ' ' . $this->getOrder();
 		if ( $this->get( 'format' ) == 'count' ) {
-			$sql .= ') as b';
+			$sql .= ') AS b';
 		}
 		$sql .= ';';
 
