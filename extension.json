@@ -1,12 +1,18 @@
 {
 	"name": "BugzillaReports",
-	"version": "1.2",
-	"author": "[https://github.com/nakal Martin Sugioarto]",
-	"url": "https://github.com/nakal/mediawiki-bugzillareports",
-	"description": "Integrates [https://www.bugzilla.org/ Bugzilla] bug tracker tabular summaries in Wiki pages",
+	"version": "1.4",
+	"author": [
+		"Ian Homer",
+		"Ciaran Gultnieks",
+		"[https://github.com/nakal Martin Sugioarto]",
+		"..."
+	],
+	"license-name": "Apache-2.0",
+	"url": "https://www.mediawiki.org/wiki/Extension:Bugzilla_Reports",
+	"description": "Integrates [https://www.bugzilla.org/ Bugzilla] bug tracker tabular summaries in wiki pages",
 	"type": "parserhook",
 	"requires": {
-		"MediaWiki": ">= 1.29.0"
+		"MediaWiki": ">= 1.31.0"
 	},
 	"MessagesDirs": {
 		"BugzillaReports": [

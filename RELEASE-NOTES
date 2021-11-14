@@ -1,5 +1,8 @@
 =Release Notes=
 
+==v1.4 - 14 November 2021==
+* So much cleanup to make this extension conform to MediaWiki's coding standards and hopefully to function properly on a modern setup
+
 ==v1.3 - 4th August 2013==
 
 * Minor fix for compatibility with MediaWiki 1.21
