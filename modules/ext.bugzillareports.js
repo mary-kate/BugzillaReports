@@ -1,11 +1,11 @@
-$( document ).ready( function() {
+$( function() {
 	$( 'div.bz_comment' ).hide();
-	$( 'tr.bz_bug' ).hover(
-		function () {
+	$( 'tr.bz_bug' ).on( {
+		'mouseenter': function () {
 			$( this ).find( 'td div.bz_comment' ).show();
 		},
-		function () {
+		'mouseleave': function () {
 			$( this ).find( 'td div.bz_comment' ).hide();
 		}
-	)
+	} );
 } );
