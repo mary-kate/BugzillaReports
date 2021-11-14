@@ -62,8 +62,6 @@ class BugzillaQueryRenderer {
 				$this->output .= ' style="' . $this->query->get( 'style' ) . '"';
 			}
 			$this->output .= '>';
-		} else {
-
 		}
 
 		# Initialise details row logic
