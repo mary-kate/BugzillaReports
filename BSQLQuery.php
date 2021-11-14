@@ -23,72 +23,64 @@ abstract class BSQLQuery {
 	public $context;
 	public $connector;
 
-	#
-	# Parameter values
-	#
+	/** @var array Parameter values */
 	private $parameters = [];
 
-	#
-	# Arbitary cached values for private use
-	#
+	/** @var array Arbitary cached values for private use */
 	private $bsql_cache = [];
 
-	#
-	# Date long time in the future, useful for sorting purposes
-	# when null mapped to this
-	#
+	/** @var string Date long time in the future, useful for sorting purposes when null mapped to this */
 	public $futureDate = '2100-01-01';
 
-	#
-	# Work out what db data is required and record in
-	# $fieldsRequired array so we can optimise the SQL
-	# ... no point in wasting energy
-	#
+	/** @var array Work out what DB data is required and record in $fieldsRequired array so we can
+	 * optimise the SQL...no point in wasting energy
+	 */
 	public $fieldsRequired = [];
 
-	# Cached array of columns that we actually want to render
+	/** @var array Cached array of columns that we actually want to render */
 	public $columnsToRender;
 
-	# Number of columns in a report
+	/** @var int Number of columns in a report */
 	public $numberOfMainRowColumns;
 
-	# Columns implicitly removed or added, note that explict setting
-	# overrides this
+	/** @var array Columns implicitly added; note that explict setting overrides this */
 	private $implicityAddedColumns = [];
+
+	/** @var array Columns implicitly removed; note that explict setting overrides this */
 	private $implicityRemovedColumns = [];
 
-	# Columns implicitly sort and order, note that explict setting
-	# overrides this
+	/** @var array Columns implicitly sort and order, note that explict setting overrides this */
 	public $implicitParameters = [];
 
-	# Cached versions so we only calculate once
+	/** @var array Cached versions so we only calculate once */
 	public $cache = [];
 
 	abstract protected function getFormats();
 	abstract protected function getDefaultSort();
 
-	#
-	# Override this to map sort value to appropriate SQL
-	#
+	/**
+	 * Override this to map sort value to appropriate SQL
+	 *
+	 * @param string $column
+	 * @return string
+	 */
 	protected function getSortMapping( $column ) {
 		if ( array_key_exists( $column, $this->sortMapping ) ) {
-			#
-			# Explicit sort mapping
-			#
+			// Explicit sort mapping
 			return $this->sortMapping[$column];
 		} elseif ( array_key_exists( $column, $this->fieldSQLColumn ) ) {
-			#
-			# ... else match against an SQL column
-			#
+			// ... else match against an SQL column
 			return $this->fieldSQLColumn[$column];
 		} else {
-			#
-			# ... otherwise just use the column name
-			#
+			// ... otherwise just use the column name
 			return $column;
 		}
 	}
 
+	/**
+	 * @param string $column
+	 * @param array $mapping
+	 */
 	protected function setSortMapping( $column, $mapping ) {
 		$this->sortMapping[$column] = $mapping;
 	}
@@ -97,13 +89,19 @@ abstract class BSQLQuery {
 		$this->context = $context;
 	}
 
+	/**
+	 * @param BPGConnector|BMysqlConnector $connector
+	 */
 	public function setConnector( $connector ) {
 		$this->connector = $connector;
 	}
 
-	#
-	# Set parameter value
-	#
+	/**
+	 * Set parameter value
+	 *
+	 * @param string $name
+	 * @param string|int|null $value
+	 */
 	public function set( $name, $value ) {
 		if ( array_key_exists( $name, $this->supportedParameters ) ) {
 			switch ( $this->supportedParameters[$name] ) {
@@ -123,10 +121,13 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Tidy a field value, which essentially means removing the spaces next
-	# to the columns
-	#
+	/**
+	 * Tidy a field value, which essentially means removing the spaces next
+	 * to the columns
+	 *
+	 * @param string $value Comma-separated value
+	 * @return string Tidied value
+	 */
 	private function tidyCommaSeparated( $value ) {
 		$newValue;
 		foreach ( explode( ',', $value ) as $singleValue ) {
@@ -139,9 +140,12 @@ abstract class BSQLQuery {
 		return $newValue;
 	}
 
-	#
-	# Return supported regex for each parameter
-	#
+	/**
+	 * Return supported regex for each parameter
+	 *
+	 * @param string $name Parameter name
+	 * @return string
+	 */
 	public function getParameterRegex( $name ) {
 		$regex;
 		$type = 'default';
@@ -177,9 +181,12 @@ abstract class BSQLQuery {
 		return $regex;
 	}
 
-	#
-	# Set implicit parameter value
-	#
+	/**
+	 * Set implicit parameter value
+	 *
+	 * @param string $name Parameter name
+	 * @param string|int $value Paramter value
+	 */
 	protected function setImplicit( $name, $value ) {
 		if ( array_key_exists( $name, $this->supportedParameters ) ) {
 			$this->implicitParameters[$name] = $value;
@@ -190,9 +197,12 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Get parameter value
-	#
+	/**
+	 * Get parameter value
+	 *
+	 * @param string $name Parameter name
+	 * @return string|int|null Parameter value, if any
+	 */
 	public function get( $name ) {
 		if ( array_key_exists( $name, $this->supportedParameters ) ) {
 			if ( array_key_exists( $name, $this->parameters ) ) {
@@ -210,9 +220,12 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Check whether a boolean field is true
-
+	/**
+	 * Check whether a boolean field is true
+	 *
+	 * @param string $name Field name
+	 * @return bool True if the field value is '1' or 'y', otherwise false
+	 */
 	public function is( $name ) {
 		$value = $this->get( $name );
 		if ( $value ) {
@@ -228,11 +241,14 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Get implicit parameter value - an implicit parameter value is one that
-	# was implicitly add by this extension, since is was determined that it
-	# was need
-	#
+	/**
+	 * Get implicit parameter value - an implicit parameter value is one that
+	 * was implicitly add by this extension, since is was determined that it
+	 * was need
+	 *
+	 * @param string $name Parameter name
+	 * @return mixed|null
+	 */
 	protected function getImplicit( $name ) {
 		if ( array_key_exists( $name, $this->supportedParameters ) ) {
 			if ( array_key_exists( $name, $this->implicitParameters ) ) {
@@ -246,10 +262,13 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Get explicit parameter value - an explicit parameter value is one that
-	# was explicitly set by the user
-	#
+	/**
+	 * Get explicit parameter value - an explicit parameter value is one that
+	 * was explicitly set by the user
+	 *
+	 * @param string $name Parameter name
+	 * @return mixed|null
+	 */
 	protected function getExplicit( $name ) {
 		if ( array_key_exists( $name, $this->supportedParameters ) ) {
 			if ( array_key_exists( $name, $this->parameters ) ) {
@@ -263,9 +282,12 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Get default parameter value
-	#
+	/**
+	 * Get default parameter value, if any
+	 *
+	 * @param string $name Parameter name
+	 * @return mixed|null
+	 */
 	protected function getDefault( $name ) {
 		if ( array_key_exists( $name, $this->supportedParameters ) ) {
 			if ( array_key_exists( $name, $this->defaultParameters ) ) {
@@ -279,20 +301,25 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Identify a field as required - a required field is one that
-	# will be included in the SQL query since it is needed for the
-	# generation of the report
-	#
+	/**
+	 * Identify a field as required - a required field is one that
+	 * will be included in the SQL query since it is needed for the
+	 * generation of the report
+	 *
+	 * @param string $column Field name
+	 */
 	public function requireField( $column ) {
 		$this->context->debug &&
 			$this->context->debug( 'Field required : ' . $column );
 		$this->fieldsRequired[$column] = 1;
 	}
 
-	#
-	# Determine whether a field is required
-	#
+	/**
+	 * Determine whether a field is required
+	 *
+	 * @param string $column
+	 * @return bool True if it is, otherwise false
+	 */
 	public function isRequired( $column ) {
 		if ( array_key_exists( $column, $this->fieldsRequired ) ) {
 			return true;
@@ -301,9 +328,14 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Convert date to nice words
-	#
+	/**
+	 * Convert date to nice words
+	 *
+	 * @todo FIXME: proper i18n
+	 *
+	 * @param string $value
+	 * @return string Human-readable string representation of the date, such as "this month" or "yesterday"
+	 */
 	private function getRadarFormat( $value ) {
 		if ( !array_key_exists( 'today', $this->bsql_cache ) ) {
 			$this->bsql_cache['yesterday'] = date( 'Y-m-d', strtotime( '-1 day' ) );
@@ -341,6 +373,12 @@ abstract class BSQLQuery {
 		}
 	}
 
+	/**
+	 * @todo FIXME: proper i18n
+	 *
+	 * @param string $value
+	 * @return string HTML div element
+	 */
 	private function getRelativeDateFormat( $value ) {
 		$formatted;
 		$title;
@@ -414,12 +452,17 @@ abstract class BSQLQuery {
 		return "<div class=\"$class\" title=\"$title\">$visible</div>";
 	}
 
+	/**
+	 * @param string|int $value
+	 * @param string $format
+	 * @param string $title
+	 * @return string Formatted value or nothing
+	 */
 	private function formatForExplicitFormat( $value, $format, $title ) {
 		( $this->context->debug == 2 ) &&
 			$this->context->debug( "$format - $value" );
-		#
-		# Split format into format name and any arguments
-		#
+
+		// Split format into format name and any arguments
 		$parts = explode( '~', $format );
 		switch ( $parts[0] ) {
 			case 'date':
@@ -465,7 +508,7 @@ abstract class BSQLQuery {
 					return '&nbsp;';
 				}
 			case 'id':
-				# Render as interwiki or external link
+				// Render as interwiki or external link
 				if ( $value ) {
 					$text;
 					if ( $title ) {
@@ -516,10 +559,8 @@ abstract class BSQLQuery {
 					if ( $this->get( 'nameformat' ) == 'tla' ) {
 						return $this->convertNameToTla( $value );
 					} else {
-						#
-						# Convert spaces to non-breaking spaces in names
-						# to prevent wrapping in the middle of a name
-						#
+						// Convert spaces to non-breaking spaces in names
+						// to prevent wrapping in the middle of a name
 						return str_replace( ' ', '&nbsp;', $value );
 					}
 				} else {
@@ -548,6 +589,9 @@ abstract class BSQLQuery {
 
 	/**
 	 * Convert a name to a TLA
+	 *
+	 * @param string $value Space-separated value
+	 * @return string
 	 */
 	public function convertNameToTla( $value ) {
 		$names = explode( ' ', $value );
@@ -572,6 +616,11 @@ abstract class BSQLQuery {
 
 	/**
 	 * Format a value
+	 *
+	 * @param string|int $value
+	 * @param string $column
+	 * @param string $title
+	 * @return string
 	 */
 	public function format( $value, $column, $title ) {
 		$formats = $this->getFormats();
@@ -584,6 +633,10 @@ abstract class BSQLQuery {
 
 	/**
 	 * Get a title for a given value
+	 *
+	 * @param array $line
+	 * @param string $column
+	 * @return string
 	 */
 	public function getValueTitle( $line, $column ) {
 		$title = '';
@@ -597,9 +650,13 @@ abstract class BSQLQuery {
 		return $title;
 	}
 
-	#
-	# Formatting with null mapped to a string, useful for headings
-	#
+	/**
+	 * Formatting with null mapped to a string, useful for headings
+	 *
+	 * @param string|int|null $value
+	 * @param string $column
+	 * @return string
+	 */
 	public function formatForHeading( $value, $column ) {
 		if ( $this->get( 'groupformat' ) ) {
 			$this->context->debug &&
@@ -616,7 +673,11 @@ abstract class BSQLQuery {
 	}
 
 	/**
-	 * Get a where clause from a named field matching a comma separated list
+	 * Get a WHERE clause from a named field matching a comma separated list
+	 *
+	 * @param string $match
+	 * @param string $name
+	 * @return string
 	 */
 	public function getWhereClause( $match, $name ) {
 		$this->context->debug &&
@@ -658,8 +719,12 @@ abstract class BSQLQuery {
 	}
 
 	/**
-	 * Get a int where clause
+	 * Get a int WHERE clause
 	 * ... very simple for now
+	 *
+	 * @param string $match +, - or * (special handling is implemented only for +)
+	 * @param string $name
+	 * @return string
 	 */
 	public function getIntWhereClause( $match, $name ) {
 		if ( preg_match( "/^[\*+-]/", $match ) ) {
@@ -676,8 +741,12 @@ abstract class BSQLQuery {
 	}
 
 	/**
-	 * Get a date where clause
+	 * Get a date WHERE clause
 	 * ... very simple for now
+	 *
+	 * @param string $match
+	 * @param string $name
+	 * @return string
 	 */
 	public function getDateWhereClause( $match, $name ) {
 		if ( preg_match( '/:/', $match ) ) {
@@ -691,14 +760,10 @@ abstract class BSQLQuery {
 					"' and $name <='" . $this->getAbsoluteDate( $range[1] ) . "'";
 			}
 		} elseif ( preg_match( "/^[\+](.+)/", $match ) ) {
-			#
-			# Search for anything before the date in the future
-			#
+			// Search for anything before the date in the future
 			return " and $name <='" . $this->getAbsoluteDate( $match ) . "'";
 		} elseif ( preg_match( "/^[-](.+)/", $match ) ) {
-			#
-			# Search for anything after the date in past
-			#
+			// Search for anything after the date in past
 			return " and $name >='" . $this->getAbsoluteDate( $match ) . "'";
 		} elseif ( preg_match( "/^[\*+-]/", $match ) ) {
 			return $this->getWhereClauseSpecial( $match, $name );
@@ -708,6 +773,10 @@ abstract class BSQLQuery {
 		}
 	}
 
+	/**
+	 * @param string $date
+	 * @return string
+	 */
 	public function getAbsoluteDate( $date ) {
 		if ( preg_match( "/^([\+-])([0-9]*)(.*)/", $date, $matches ) ) {
 			switch ( $matches[3] ) {
@@ -734,6 +803,14 @@ abstract class BSQLQuery {
 		}
 	}
 
+	/**
+	 * Construct a special WHERE clause when $match is either a plus string, a minus string
+	 * or an asterisk.
+	 *
+	 * @param string $match
+	 * @param string $name
+	 * @return string Something like "and $name IS NULL"
+	 */
 	public function getWhereClauseSpecial( $match, $name ) {
 		switch ( $match ) {
 			case '+':
@@ -750,7 +827,10 @@ abstract class BSQLQuery {
 	}
 
 	/**
-	 * Get maximum number of rows
+	 * Get maximum number of rows, with the value set in configuration as the final
+	 * fallback if the user-supplied value exceeds that amount
+	 *
+	 * @return int
 	 */
 	public function getMaxRows() {
 		if ( $this->get( 'maxrows' ) ) {
@@ -766,7 +846,10 @@ abstract class BSQLQuery {
 	}
 
 	/**
-	 * Get maximum number of rows
+	 * Get maximum number of rows for bar chart, with the value set in configuration as the final
+	 * fallback if the user-supplied value exceeds that amount
+	 *
+	 * @return int
 	 */
 	public function getMaxRowsForBarChart() {
 		if ( $this->get( 'maxrowsbar' ) ) {
@@ -783,46 +866,51 @@ abstract class BSQLQuery {
 
 	/**
 	 * Get sort
+	 *
+	 * @return string
 	 */
 	public function getSort() {
-		# Not explicit on function call or notcached
+		// Not explicit on function call or notcached
 		if ( !array_key_exists( 'sort', $this->cache ) ) {
 			$sort;
 			if ( $this->getExplicit( 'sort' ) ) {
 				$sort = $this->getExplicit( 'sort' );
 			} elseif ( $this->getImplicit( 'sort' ) ) {
-				# Implicit on usage and other function call parameters
+				// Implicit on usage and other function call parameters
 				$sort = $this->getImplicit( 'sort' );
 			} else {
-				# Default behaviour
+				// Default behaviour
 				$sort = $this->getDefault( 'sort' );
 			}
-			#
-			# Prepend with group (if set)
-			#
+
+			// Prepend with group (if set)
 			if ( $this->getGroup() ) {
 				$groupOrder = $sort = $this->getGroup() . ' ' . $this->getGroupOrder() . ',' . $sort;
 			}
+
 			$this->context->debug &&
 				$this->context->debug( "Sort set to $sort" );
+
 			$this->cache['sort'] = $sort;
 		}
+
 		return $this->cache['sort'];
 	}
 
-	#
-	# Return sort with mapping
-	#
+	/**
+	 * Return sort with mapping
+	 *
+	 * @return string
+	 */
 	public function getMappedSort() {
 		$mappedSort = [];
 
 		foreach ( explode( ',', $this->getSort() ) as $column ) {
-			#
-			# Sort might already have an order on it (e.g. ASC or DESC)
-			# which we need to protect
-			#
+			// Sort might already have an order on it (e.g. ASC or DESC)
+			// which we need to protect
 			$elements = explode( ' ', $column );
 			$mapped = $this->getSortMapping( $elements[0] );
+
 			if ( sizeof( $elements ) == 2 ) {
 				switch ( strtoupper( $elements[1] ) ) {
 					case 'DESC':
@@ -835,6 +923,7 @@ abstract class BSQLQuery {
 						$this->context->warn( 'Sort argument not recognised: ' . $elements[1] );
 				}
 			}
+
 			array_push( $mappedSort, $mapped );
 		}
 
@@ -846,7 +935,9 @@ abstract class BSQLQuery {
 	}
 
 	/**
-	 * Get order
+	 * Get and cache the order string
+	 *
+	 * @return string Either DESC or ASC
 	 */
 	public function getOrder() {
 		if ( !array_key_exists( 'order', $this->cache ) ) {
@@ -870,7 +961,9 @@ abstract class BSQLQuery {
 	}
 
 	/**
-	 * Get order
+	 * Get and cache the group order string
+	 *
+	 * @return string Either DESC or ASC
 	 */
 	public function getGroupOrder() {
 		if ( !array_key_exists( 'grouporder', $this->cache ) ) {
@@ -894,19 +987,21 @@ abstract class BSQLQuery {
 	}
 
 	/**
-	 * Get group
+	 * Get and cache the GROUP BY value
+	 *
+	 * @return string
 	 */
 	public function getGroup() {
 		if ( !array_key_exists( 'group', $this->cache ) ) {
 			$group;
 			if ( $this->getExplicit( 'group' ) ) {
-				# Explicit on function call
+				// Explicit on function call
 				$group = $this->getExplicit( 'group' );
 			} elseif ( $this->getImplicit( 'group' ) ) {
-				# Implicit on usage and other function call parameters
+				// Implicit on usage and other function call parameters
 				$group = $this->getImplicit( 'group' );
 			} else {
-				# Default behaviour is nothing
+				// Default behaviour is nothing
 				$group = false;
 			}
 			$this->cache['group'] = $group;
@@ -914,11 +1009,21 @@ abstract class BSQLQuery {
 		return $this->cache['group'];
 	}
 
+	/**
+	 * Register the supplied column for implicit removal
+	 *
+	 * @param string $column
+	 */
 	public function implictlyRemoveColumn( $column ) {
 		$this->implicityRemovedColumns[$column] = $column;
 		$this->context->debug( 'Registering column for implicit removal : ' . $column );
 	}
 
+	/**
+	 * Register the supplied column for implicit addition
+	 *
+	 * @param string $column
+	 */
 	public function implictlyAddColumn( $column ) {
 		$this->implicityAddedColumns[$column] = $column;
 		$this->context->debug( 'Registering column for implicit addition : ' . $column );
@@ -926,11 +1031,14 @@ abstract class BSQLQuery {
 
 	/**
 	 * Get columns
+	 *
+	 * @return string
 	 */
 	public function getColumns() {
 		if ( $this->columnsToRender ) {
 			return $this->columnsToRender;
 		}
+
 		if ( $this->getExplicit( 'columns' ) ) {
 			if ( preg_match( "/^([+-])(.*)$/", $this->getExplicit( 'columns' ), $array ) ) {
 				$this->context->debug &&
@@ -938,37 +1046,40 @@ abstract class BSQLQuery {
 						'Adjusting columns (comma separated) : ' .
 						$array[1] . ':' . $array[2]
 					);
+
 				$baseColumns = explode( ',', $this->getDefault( 'columns' ) );
 				$newColumns = [];
 				$deltaColumns = explode( ',', $array[2] );
 				$defaultOperation = $array[1];
+
 				foreach ( $deltaColumns as $deltaColumn ) {
 					$newColumn = $deltaColumn;
 					$operation = $defaultOperation;
-					#
-					# Support operations on subsequent columns (not just the first)
-					#
+
+					// Support operations on subsequent columns (not just the first)
 					if ( preg_match( "/^([+-])(.*)$/", $deltaColumn, $pregDeltaColumn ) ) {
 						$operation = $pregDeltaColumn[1];
 						$newColumn = $pregDeltaColumn[2];
 					}
-					#
-					# Column name can have title in name, e.g. field:title
-					#
+
+					// Column name can have title in name, e.g. field:title
 					$newColumn = $this->getColumnNameAndRegisterTitle( $newColumn );
 					$this->context->debug &&
 						$this->context->debug(
 							"Adjusting columns (single string): {$operation}:{$newColumn}:"
 						);
+
 					/**
 					 * Add or remove column
 					 */
 					if ( $operation == '+' ) {
 						$this->context->debug && $this->context->debug( "Adding column [$newColumn]" );
 						array_push( $newColumns, $newColumn );
+
 						if ( $this->isCustomField( $newColumn ) ) {
 							$this->addCustomField( $newColumn );
 						}
+
 						if ( array_key_exists( $newColumn, $this->implicityRemovedColumns ) ) {
 							$this->context->debug &&
 								$this->context->debug( "Removing implicit removal of column : $newColumn" );
@@ -991,6 +1102,7 @@ abstract class BSQLQuery {
 									"Removing column [$newColumn,$found] ; " . $baseColumns[$found]
 								);
 							unset( $baseColumns[$found] );
+
 							if ( array_key_exists( $newColumn, $this->implicityAddedColumns ) ) {
 								$this->context->debug &&
 									$this->context->debug( "Removing implicit column $newColumn ; " );
@@ -1004,10 +1116,8 @@ abstract class BSQLQuery {
 					}
 				}
 
-				#
-				# We may have removed values from the columns so we need to
-				# recreate array by calling array_values function
-				#
+				// We may have removed values from the columns so we need to
+				// recreate array by calling array_values function
 				$this->columnsToRender = array_fill_keys(
 					array_merge(
 						$this->applyImplicitColumns( array_values( $baseColumns ) ),
@@ -1015,25 +1125,20 @@ abstract class BSQLQuery {
 					)
 				);
 
-				#
-				# Always add explicit columns to end for consistency
-				#
-
+				// Always add explicit columns to end for consistency
 				$this->context->debug &&
 					$this->context->debug( 'Columns to display adjusted to ' . join( ',', $this->columnsToRender ) );
 			} else {
 				$this->context->debug &&
 					$this->context->debug( 'Columns explicitly set to ' . $this->get( 'columns' ) );
-				#
-				# Explicit columns - so don't apply implicit rules
-				#
+
+				// Explicit columns - so don't apply implicit rules
 				$this->columnsToRender = [];
 				foreach ( explode( ',', $this->getExplicit( 'columns' ) ) as $column ) {
 					$newColumn = $this->getColumnNameAndRegisterTitle( $column );
 					array_push( $this->columnsToRender, $newColumn );
-					#
-					# Add any custom fields if included
-					#
+
+					// Add any custom fields if included
 					if ( $this->isCustomField( $newColumn ) ) {
 						$this->addCustomField( $newColumn );
 					}
@@ -1044,13 +1149,18 @@ abstract class BSQLQuery {
 			$this->context->debug &&
 				$this->context->debug( 'Columns set to default ' . join( ',', $this->columnsToRender ) );
 		}
+
 		return $this->columnsToRender;
 	}
 
-	#
-	# Column name can have title in name, e.g. field:title.	If it does then register the title
-	# and return the actual column.	If it doesn't then just return the column as is
-	#
+	/**
+	 * Column name can have title in name, e.g. field:title.
+	 * If it does then register the title and return the actual column.
+	 * If it doesn't then just return the column as is.
+	 *
+	 * @param string $column
+	 * @return string
+	 */
 	private function getColumnNameAndRegisterTitle( $column ) {
 		$parts = explode( ':', $column );
 		if ( sizeof( $parts ) > 1 ) {
@@ -1064,9 +1174,12 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Apply implicit column rules
-	#
+	/**
+	 * Apply implicit column rules
+	 *
+	 * @param array $columns
+	 * @return array
+	 */
 	private function applyImplicitColumns( $columns ) {
 		$newColumns = array_fill_keys( array_merge(
 			$columns,
@@ -1090,41 +1203,31 @@ abstract class BSQLQuery {
 		return array_keys( $newColumns );
 	}
 
-	#
-	# Initialisation prior to generating the SQL
-	#
+	/**
+	 * Initialisation prior to generating the SQL
+	 */
 	protected function preSQLGenerate() {
-		#
-		# Process sort variable and add implicit columns
-		#
+		// Process sort variable and add implicit columns
 		foreach ( explode( ',', $this->getSort() ) as $column ) {
-			#
-			# Sort column might have an order attached, e.g. ASC or DESC
-			# which we should remove to get the column name
-			#
+			// Sort column might have an order attached, e.g. ASC or DESC
+			// which we should remove to get the column name
 			$elements = explode( ' ', $column );
 			$this->implictlyAddColumn( $elements[0] );
 		}
 
-		#
-		# But remove group
-		#
+		// But remove group
 		foreach ( explode( ',', $this->getGroup() ) as $column ) {
 			$this->implictlyRemoveColumn( $column );
-			# Although we still need the field in the SQL
+			// Although we still need the field in the SQL
 			$this->requireField( $column );
 		}
 
-		#
-		# Require fields listed in columns
-		#
+		// Require fields listed in columns
 		foreach ( $this->getColumns() as $column ) {
 			$this->requireField( $column );
 		}
 
-		#
-		# Require the bar field
-		#
+		// Require the bar field
 		if ( $this->get( 'bar' ) ) {
 			$this->context->debug &&
 				$this->context->debug( 'Requiring bar field ' . $this->get( 'bar' ) );
@@ -1132,6 +1235,10 @@ abstract class BSQLQuery {
 		}
 	}
 
+	/**
+	 * @param string $column
+	 * @return string
+	 */
 	public function mapField( $column ) {
 		if ( array_key_exists( $column, $this->fieldMapping ) ) {
 			return $this->fieldMapping[$column];
@@ -1140,12 +1247,15 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Safe SQL decoding
-	# e.g.
-	#	product=MyProduct%21%27 will fail
-	#	product=MyProduct%21 is OK
-	#
+	/**
+	 * Safe SQL decoding
+	 * e.g.
+	 *	product=MyProduct%21%27 will fail
+	 *	product=MyProduct%21 is OK
+	 *
+	 * @param string $s
+	 * @return string The string 'INVALID_FIELD_VALUE' if $s contains illegal characters
+	 */
 	protected function safeSQLdecode( $s ) {
 		$newString = urldecode( $s );
 		$safeSQLRegex = "/^[\w,@\.\s\*\/%!()+-]*$/";
@@ -1157,10 +1267,14 @@ abstract class BSQLQuery {
 		}
 	}
 
-	#
-	# Get value from database with appropriate encoding conversions ready for HTML
-	# output to MediaWiki
-	#
+	/**
+	 * Get value from database with appropriate encoding conversions ready for HTML
+	 * output to MediaWiki
+	 *
+	 * @param array $line
+	 * @param string $column
+	 * @return string
+	 */
 	public function getDBValue( $line, $column ) {
 		return $line[$column];
 	}

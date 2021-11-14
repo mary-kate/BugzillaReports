@@ -161,7 +161,7 @@ class BugzillaQuery extends BSQLQuery {
 		'work'        => 'Work'
 	];
 
-	# Fields and their mapping to the value in the results sets
+	/** @var array Fields and their mapping to the value in the results sets */
 	public $fieldMapping = [
 		'cc'          => 'cc',
 		'from'        => 'raisedby',
@@ -196,7 +196,7 @@ class BugzillaQuery extends BSQLQuery {
 		'work'        => 'work_time'
 	];
 
-	# Bugzilla Query field names
+	/** @var array Bugzilla Query field names */
 	public $fieldBZQuery = [
 		'blocks'      => 'blocked',
 		'hardware'    => 'rep_platform',
@@ -265,9 +265,7 @@ class BugzillaQuery extends BSQLQuery {
 		'blockssummary'   => 'block'
 	];
 
-	#
-	# Title for a given value rendering
-	#
+	/** @var array Title for a given value rendering */
 	public $valueTitle = [
 		'alias'       => 'id,alias',
 		'blocks'      => 'blocks,blocksalias',
@@ -286,58 +284,60 @@ class BugzillaQuery extends BSQLQuery {
 	public static $fieldIds = [];
 	public static $buglistServerRelativeUri = '/buglist.cgi?';
 
-	#
-	# Parse in a context object which implements the following
-	#
-	# Public Variables
-	# - debug, bzserver, interwiki,
-	# - database, host, dbuser, password;
-	#
-	# Functions
-	# - debug
-	# - warn,
-	# - getErrorMessage
-	#
+	/**
+	 * Parse in a context object which implements the following
+	 *
+	 * Public Variables
+	 * - debug, bzserver, interwiki,
+	 * - database, host, dbuser, password;
+	 *
+	 * Functions
+	 * - debug
+	 * - warn,
+	 * - getErrorMessage
+	 *
+	 * @param BPGConnector|BMysqlConnector $connector
+	 */
 	function __construct( $connector ) {
 		$this->setConnector( $connector );
 		$this->setContext( $connector->getContext() );
 	}
 
-	#
-	# Get rendering formats
-	#
+	/**
+	 * Get rendering formats
+	 *
+	 * @return array
+	 */
 	function getFormats() {
 		return $this->formats;
 	}
 
-	#
-	# Get default priority
-	#
+	/**
+	 * Get default priority
+	 *
+	 * @return string
+	 */
 	function getDefaultSort() {
 		return $this->defaultSort;
 	}
 
-	#
-	# Render the results
-	#
+	/**
+	 * Render the results
+	 *
+	 * @return string HTML
+	 */
 	function render() {
 		$this->bzURL = $this->context->bzserver . BugzillaQuery::$buglistServerRelativeUri;
 
-		#
-		# Register supported custom fields
-		#
+		// Register supported custom fields
 		if ( $this->get( 'customfields' ) ) {
 			$this->supportedCustomFields = explode( ',', $this->get( 'customfields' ) );
 		}
 
-		#
-		# Calculate the customPrefixLength once so that we reuse below
-		#
+		// Calculate the customPrefixLength once so that we reuse below
 		$this->customPrefixLength = strlen( $this->get( 'customprefix' ) );
 
-		#
-		# Extract rules on how to link through headings and values to wiki pages
-		#
+		// Extract rules on how to link through headings and values to wiki pages
 		if ( $this->get( 'link' ) ) {
 			foreach ( explode( ',', $this->get( 'link' ) ) as $linkedColumn ) {
 				$parts = explode( '~', $linkedColumn );
@@ -350,10 +350,8 @@ class BugzillaQuery extends BSQLQuery {
 			}
 		}
 
-		#
-		# If lastcomment mode is selected then we require the keywords field and we
-		# will set those to link through to the appropriate wiki page
-		#
+		// If lastcomment mode is selected then we require the keywords field and we
+		// will set those to link through to the appropriate wiki page
 		if ( $this->get( 'lastcomment' ) ) {
 			$this->requireField( 'keywords' );
 			if ( !array_key_exists( 'keywords', $this->formats ) ) {
@@ -361,9 +359,7 @@ class BugzillaQuery extends BSQLQuery {
 			}
 		}
 
-		#
-		# Sorting does not work when grouping is enabled so we disable it
-		#
+		// Sorting does not work when grouping is enabled so we disable it
 		if ( $this->get( 'group' ) ) {
 			$this->set( 'sortable', '0' );
 		}
@@ -379,9 +375,7 @@ class BugzillaQuery extends BSQLQuery {
 
 		$result = $this->connector->execute( $sql, $db );
 
-		#
-		# Check that the record set is open
-		#
+		// Check that the record set is open
 		if ( $result ) {
 			if ( $this->get( 'format' ) == 'count' ) {
 				while ( $line = $this->connector->fetch( $result ) ) {
@@ -396,10 +390,9 @@ class BugzillaQuery extends BSQLQuery {
 					$output = $renderer->renderHTML( $result );
 				} else {
 					$this->context->debug && $this->context->debug( 'No results to render' );
-					#
-					# If total is set then we still want to render the result
-					# because we want the zero totals to show
-					#
+
+					// If total is set then we still want to render the result
+					// because we want the zero totals to show
 					if ( $this->get( 'total' ) ) {
 						$output = $renderer->renderHTML( $result );
 					} else {
@@ -432,15 +425,15 @@ class BugzillaQuery extends BSQLQuery {
 
 	/**
 	 * Build the SQL for the query
+	 *
+	 * @return string SQL query string
 	 */
 	public function getSQL() {
 		$this->context->debug && $this->context->debug( 'Rendering BugzillaQuery' );
 
 		$where = '';
 
-		#
-		# Process fields and make sure we have SQL and implicit usage built up
-		#
+		// Process fields and make sure we have SQL and implicit usage built up
 		foreach ( array_keys( $this->supportedParameters ) as $column ) {
 			$fieldValue = $this->get( $column );
 			if ( $fieldValue ) {
@@ -448,16 +441,12 @@ class BugzillaQuery extends BSQLQuery {
 					$this->context->debug( "Handling field : $column : $fieldValue" );
 				$type = $this->supportedParameters[$column];
 
-				#
-				# Support generic argument syntax
-				#
+				// Support generic argument syntax
 				if ( $type == 'filters' ) {
 					$args = explode( '%26', $fieldValue );
 					foreach ( $args as $arg ) {
 						$this->context->debug( "Processing filter : $arg" );
-						#
-						# Match for encoded =
-						#
+						// Match for encoded =
 						if ( preg_match( '/%3D/', $arg ) ) {
 							$parts = explode( '%3D', $arg );
 							$argColumn = $parts[0];
@@ -488,52 +477,44 @@ class BugzillaQuery extends BSQLQuery {
 							' WHERE keywords.bug_id=bugs.bug_id ' .
 							$this->processField( $column, $fieldValue, 'field' ) .
 							')';
-					} else {
-						$where .= $this->processField( $column, $fieldValue, $type );
-					}
+				} else {
+					$where .= $this->processField( $column, $fieldValue, $type );
 				}
 			}
+		}
 
-			if ( $this->get( 'format' ) == 'list' ) {
-				$this->requireField( 'to' );
-				$this->requireField( 'deadline' );
-			}
+		if ( $this->get( 'format' ) == 'list' ) {
+			$this->requireField( 'to' );
+			$this->requireField( 'deadline' );
+		}
 
-			if ( $this->get( 'flag' ) ) {
-				$this->requireField( 'flag' );
-				$this->implictlyAddColumn( 'flagfrom' );
-				$this->implictlyAddColumn( 'flagname' );
-				$this->implictlyAddColumn( 'flagdate' );
-			}
+		if ( $this->get( 'flag' ) ) {
+			$this->requireField( 'flag' );
+			$this->implictlyAddColumn( 'flagfrom' );
+			$this->implictlyAddColumn( 'flagname' );
+			$this->implictlyAddColumn( 'flagdate' );
+		}
 
-			if ( $this->get( 'lastcomment' ) ) {
-				$this->requireField( 'lastcomment' );
-			}
+		if ( $this->get( 'lastcomment' ) ) {
+			$this->requireField( 'lastcomment' );
+		}
 
-			if ( $this->get( 'search' ) ) {
-				$where .= " AND short_desc LIKE '%" . $this->get( 'search' ) . "%'";
-			}
+		if ( $this->get( 'search' ) ) {
+			$where .= " AND short_desc LIKE '%" . $this->get( 'search' ) . "%'";
+		}
 
-			#
-			# Set implicit group order
-			#
-			if ( $this->get( 'group' ) && array_key_exists( $this->get( 'group' ), $this->fieldDefaultOrder ) ) {
-				$this->setImplicit( 'grouporder', $this->fieldDefaultOrder[$this->get( 'group' )] );
-			}
+		// Set implicit group order
+		if ( $this->get( 'group' ) && array_key_exists( $this->get( 'group' ), $this->fieldDefaultOrder ) ) {
+			$this->setImplicit( 'grouporder', $this->fieldDefaultOrder[$this->get( 'group' )] );
+		}
 
-		#
-		# Quick flag enabled by default
-		#
+		// Quick flag enabled by default
 		$this->requireField( 'quickflag' );
 
-		#
-		# Alias enabled by default
-		#
+		// Alias enabled by default
 		$this->requireField( 'alias' );
 
-		#
-		# Prepare the query;
-		#
+		// Prepare the query;
 		$this->preSQLGenerate();
 
 		$this->context->debug &&
@@ -620,9 +601,7 @@ class BugzillaQuery extends BSQLQuery {
 		if ( $this->isRequired( 'os' ) ) {
 			$sql .= ', op_sys AS os';
 		}
-		#
-		# Priority always required because it used as class name for bug row
-		#
+		// Priority always required because it used as class name for bug row
 		$sql .= ', priority';
 		if ( $this->isRequired( 'product' ) ) {
 			$sql .= ', products.name AS product';
@@ -646,9 +625,7 @@ class BugzillaQuery extends BSQLQuery {
 		if ( $this->isRequired( 'resolved' ) ) {
 			$sql .= ', resolvedactivity.bug_when AS resolved';
 		}
-		#
-		# Severity always required because it used as class name for bug row
-		#
+		// Severity always required because it used as class name for bug row
 		$sql .= ', bug_severity AS severity';
 		if ( $this->isRequired( 'status' ) ) {
 			$sql .= ', bug_status AS status';
@@ -676,9 +653,7 @@ class BugzillaQuery extends BSQLQuery {
 			$sql .= ', SUM(longdescswork.work_time) AS work';
 		}
 
-		#
-		# Now add custom fields
-		#
+		// Now add custom fields
 		$this->context->debug &&
 			$this->context->debug( sizeof( $this->requiredCustomFields ) . ' custom fields' );
 
@@ -794,7 +769,7 @@ class BugzillaQuery extends BSQLQuery {
 		if ( $this->isRequired( 'product' ) ) {
 			$sql .= ' LEFT JOIN ' .
 				$this->connector->getTable( 'products' ) .
-				' on bugs.product_id=products.id';
+				' ON bugs.product_id=products.id';
 		}
 		if ( $this->isRequired( 'qa' ) ) {
 			$sql .= ' LEFT JOIN ' .
@@ -851,9 +826,14 @@ class BugzillaQuery extends BSQLQuery {
 		return $sql;
 	}
 
-	#
-	# Process a field
-	#
+	/**
+	 * Process a field
+	 *
+	 * @param string $column
+	 * @param string $fieldValue
+	 * @param string $type
+	 * @return string WHERE clause fragment (or emptiness)
+	 */
 	public function processField( $column, $fieldValue, $type ) {
 		$where = '';
 		switch ( $type ) {
@@ -868,13 +848,11 @@ class BugzillaQuery extends BSQLQuery {
 			case 'field-date':
 			case 'field-number':
 				if ( $type != 'field-id' ) {
-					#
-					# If field is multiple values ",", not a value
-					# "!", any value "*", a non-null (or
-					# positive value) "+", then add column and
-					# sort, otherwise remove it.
-					#
-					if ( preg_match("/[,!+\*%<>]/", $fieldValue ) ) {
+					// If field is multiple values ",", not a value
+					// "!", any value "*", a non-null (or
+					// positive value) "+", then add column and
+					// sort, otherwise remove it.
+					if ( preg_match( "/[,!+\*%<>]/", $fieldValue ) ) {
 						$this->implictlyAddColumn( $column );
 						if ( array_key_exists( $column, $this->fieldDefaultOrder ) ) {
 							$this->setImplicit( 'sort', "$column" );
@@ -905,7 +883,7 @@ class BugzillaQuery extends BSQLQuery {
 
 				$this->requireField( $column );
 
-				# Create the bugzilla query URL
+				// Create the bugzilla query URL
 				$bzFieldName = $column;
 				if ( array_key_exists( $column, $this->fieldBZQuery ) ) {
 					$bzFieldName = $this->fieldBZQuery[$column];
@@ -944,7 +922,7 @@ class BugzillaQuery extends BSQLQuery {
 		$decodedMatch = $this->safeSQLdecode( $trimmedMatch );
 
 		if ( preg_match( '/%/', $match ) ) {
-			# We have a like clause
+			// We have a like clause
 			if ( $localNegate ) {
 				return $name . " not like '" . $decodedMatch . "'";
 			} else {
@@ -973,21 +951,21 @@ class BugzillaQuery extends BSQLQuery {
 		}
 	}
 
-	#
-	# Get the BZ Query URL
-	#
+	/**
+	 * Get the BZ Query URL
+	 *
+	 * @param string $value
+	 * @param string $name
+	 * @return string
+	 */
 	private function getBZQuery( $value, $name ) {
 		if ( preg_match( "/^[\*+-]/", $value ) ) {
-			#
-			# *,+ and - (i.e. any value, not null/not zero and null/zero)
-			# not supported in Bugzilla queries
-			#
+			// *,+ and - (i.e. any value, not null/not zero and null/zero)
+			// not supported in Bugzilla queries
 			return '';
 		}
 
-		#
-		# Replace spaces with "%20" to make it a safe URL
-		#
+		// Replace spaces with "%20" to make it a safe URL
 		$safeValue = str_replace( ' ', '%20', $value );
 		$query = '';
 		$bzFieldGroupCount = 0;
@@ -1023,15 +1001,11 @@ class BugzillaQuery extends BSQLQuery {
 					"&value$fieldName=$singleValue";
 			}
 
-			#
-			# Not operator leads to anding ...
-			#
+			// Not operator leads to anding ...
 			if ( $operator == 'AND' ) {
 				$this->bzFieldCount++;
 			} else {
-				#
-				# ... otherwise it's oring ...
-				#
+				// ... otherwise it's oring ...
 				$bzFieldGroupCount++;
 			}
 		}
@@ -1043,10 +1017,9 @@ class BugzillaQuery extends BSQLQuery {
 		return $query;
 	}
 
-	#
-	# Override formats
-	#
-
+	/**
+	 * Override formats
+	 */
 	private function overrideFormats() {
 		if ( $this->get( 'modifiedformat' ) ) {
 			$this->context->debug &&
@@ -1055,22 +1028,25 @@ class BugzillaQuery extends BSQLQuery {
 		}
 		if ( $this->get( 'createdformat' ) ) {
 			$this->context->debug &&
-				$this->context->debug( 'Setting modified format to ' . $this->get( 'createdformat' ) );
+				$this->context->debug( 'Setting created format to ' . $this->get( 'createdformat' ) );
 			$this->formats['created'] = $this->get( 'createdformat' );
 		}
 	}
 
-	#
-	# A field is identified as a custom one if
-	#
-	#	 1) implicitcustom field is false and
-	#		 a) it starts with the custom field prefix, or
-	#		 b) it is listed in the supportedCustomFields
-	# or 2) implictcustom field is true and
-	#	 a) it is not in the supportParameters list
-	#
-	# Note that nowadays Bugzilla enforces custom fields to start with "cf_"
-	#
+	/**
+	 * A field is identified as a custom one if
+	 *
+	 *	 1) implicitcustom field is false and
+	 *		 a) it starts with the custom field prefix, or
+	 *		 b) it is listed in the supportedCustomFields
+	 * or 2) implictcustom field is true and
+	 *	 a) it is not in the supportParameters list
+	 *
+	 * Note that nowadays Bugzilla enforces custom fields to start with "cf_"
+	 *
+	 * @param string $column
+	 * @return bool
+	 */
 	protected function isCustomField( $column ) {
 		if ( $this->get( 'implicitcustom' ) == 'true' ) {
 			$flag = !array_key_exists( $column, $this->columnName );
@@ -1084,15 +1060,22 @@ class BugzillaQuery extends BSQLQuery {
 		}
 	}
 
+	/**
+	 * Register the supplied field as a custom one
+	 *
+	 * @param string $column
+	 */
 	protected function addCustomField( $column ) {
 		array_push( $this->requiredCustomFields, $column );
 		$this->context->debug && $this->context->debug( "Custom field added $column" );
 	}
 
+	/**
+	 * @param PgSql\Connection|mysqli|false $db
+	 * @return array
+	 */
 	protected function initFieldIds( $db ) {
-		#
-		# Initialise the fieldIds
-		#
+		// Initialise the fieldIds
 		if ( sizeof( BugzillaQuery::$fieldIds ) <= 1 ) {
 			$result = $this->connector->execute( 'select id,name from ' . $this->connector->getTable( 'fielddefs' ), $db );
 			$this->context->debug &&

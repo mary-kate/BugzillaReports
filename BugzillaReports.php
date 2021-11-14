@@ -22,28 +22,40 @@
 
 class BugzillaReports extends BMWExtension {
 
-	# The handle on the query object
+	/** @var BugzillaQuery The handle on the query object */
 	public $query;
 
-	# Default max rows for a report
+	/** @var int Default max rows for a report from configuration */
 	public $maxrowsFromConfig;
+
+	/** @var int Default max rows for a report */
 	public $maxrowsFromConfigDefault = 100;
 
+	/** @var string String describing which database driver to use */
 	public $dbdriverDefault = 'mysql';
 
-	# Default max rows which are used for aggregation of a bar chart report
+	/** @var int Default max rows which are used for aggregation of a bar chart report */
 	public $maxrowsForBarChartFromConfig;
 	public $maxrowsForBarChartFromConfigDefault = 500;
 
-	# Output raw HTML (i.e. not Wiki output)
+	/** @var bool Output raw HTML (i.e. not wikitext)? */
 	public $rawHTML;
 
-	public $dbuser, $bzserver, $interwiki;
+	/** @var string Bugzilla database username */
+	public $dbuser;
+
+	/** @var string Bugzilla database server name or IP address */
+	public $bzserver;
+
+	public $interwiki;
 	public $database, $host, $password;
 	public $dbdriver;
 	public $dbencoding;
 	public $instanceNameSpace;
 
+	/**
+	 * @param &$parser Parser
+	 */
 	function __construct( &$parser ) {
 		$this->parser =& $parser;
 	}
@@ -67,6 +79,12 @@ class BugzillaReports extends BMWExtension {
 		return call_user_func_array( 'BugzillaReports::parserFunctionHook', $parserArgs );
 	}
 
+	/**
+	 * Callback for the {{#bugzilla:}} parser function
+	 *
+	 * @param &$parser Parser
+	 * @return array
+	 */
 	public static function parserFunctionHook( Parser &$parser ) {
 		$args = func_get_args();
 		array_shift( $args );
@@ -78,11 +96,15 @@ class BugzillaReports extends BMWExtension {
 		];
 	}
 
+	/**
+	 * @var array $args User-supplied arguments
+	 * @return string
+	 */
 	public function render( $args ) {
 		global $wgBugzillaReports;
 		global $wgDBserver, $wgDBname, $wgDBuser, $wgDBpassword;
 
-		# Initialise query
+		// Initialise query
 		$this->dbdriver = $this->getProperty( 'dbdriver', $this->dbdriverDefault );
 		$connector;
 		switch ( $this->dbdriver ) {
@@ -95,34 +117,24 @@ class BugzillaReports extends BMWExtension {
 
 		$this->query = new BugzillaQuery( $connector );
 
-		#
-		# Process arguments from default setting across all the wiki
-		#
+		// Process arguments from default setting across all the wiki
 		$this->extractOptions( explode( '|', $this->getProperty( 'default' ) ) );
 
-		#
-		# Process arguments for this particular query
-		#
+		// Process arguments for this particular query
 		$this->extractOptions( $args );
 
 		if ( $this->query->get( 'instance' ) != null ) {
 			$this->instanceNameSpace = $this->query->get( 'instance' );
 		}
 
-		#
-		# Allow the user to specify alternate DB connection info by name
-		# in his query.
-		#
+		// Allow the user to specify alternate DB connection info by name
+		// in their query.
 		if ( $this->query->get( 'bzalternateconfig' ) != null ) {
-			#
-			# The user has asked for an alternate BZ iestall to be queried.
-			#
+			// The user has asked for an alternate BZ iestall to be queried.
 			$alternateConfigName = $this->query->get( 'bzalternateconfig' );
 			$bzAlternateConfigs = $this->getProperty( 'bzAlternateConfigs' );
 			if ( is_array( $bzAlternateConfigs[$alternateConfigName] ) ) {
-				#
-				# We appear to have an array...set values.
-				#
+				// We appear to have an array...set values.
 				$this->dbuser = $bzAlternateConfigs[$alternateConfigName]['user'];
 				$this->bzserver = $bzAlternateConfigs[$alternateConfigName]['bzserver'];
 				$this->database = $bzAlternateConfigs[$alternateConfigName]['database'];
@@ -130,9 +142,7 @@ class BugzillaReports extends BMWExtension {
 				$this->password = $bzAlternateConfigs[$alternateConfigName]['password'];
 			}
 		} else {
-			#
-			# Use the defaults from LocalConfig
-			#
+			// Use the defaults from LocalSettings.php.
 			$this->dbuser = $this->getProperty( 'user', $wgDBuser );
 			$this->bzserver = $this->getProperty( 'bzserver', null );
 			$this->database = $this->getProperty( 'database' );
@@ -145,21 +155,17 @@ class BugzillaReports extends BMWExtension {
 		$this->maxrowsFromConfig = $this->getProperty( 'maxrows', $this->maxrowsFromConfigDefault );
 		$this->maxrowsForBarChartFromConfig = $this->getProperty( 'maxrowsbar', $this->maxrowsForBarChartFromConfigDefault );
 		if ( $this->query->get( 'disablecache' ) != null ) {
-			#
-			# Extension parameter take priority on disable cache configuration
-			#
+			// Extension parameter take priority on disable cache configuration
 			if ( $this->query->get( 'disablecache' ) == '1' ) {
 				$this->disableCache();
 			}
 		} elseif ( $this->getProperty( 'disablecache' ) == '1' ) {
-			#
-			# ... then it's the LocalSettings property
-			#
+			// ... then it's the LocalSettings property
 			$this->disableCache();
 		}
 
 		/**
-		 * Add CSS and Javascript to output
+		 * Add CSS and JavaScript to output
 		 */
 		$this->parser->getOutput()->addModules( 'ext.bugzillareports' );
 
@@ -168,16 +174,22 @@ class BugzillaReports extends BMWExtension {
 		return $this->query->render() . $this->getWarnings();
 	}
 
+	/**
+	 * Disable parser caching
+	 */
 	protected function disableCache() {
 		$this->debug && $this->debug( 'Disabling parser cache for this page' );
 		$this->parser->updateCacheExpiry( 0 );
 	}
 
-	#
-	# Set value - implementation of the abstract function from BMWExtension
-	#
+	/**
+	 * Set value - implementation of the abstract function from BMWExtension
+	 *
+	 * @param string $name
+	 * @param string|int|null $value
+	 */
 	protected function set( $name, $value ) {
-		# debug variable is store on this object
+		// debug variable is store on this object
 		if ( $name == 'debug' ) {
 			$this->$name = $value;
 		} else {
@@ -185,6 +197,10 @@ class BugzillaReports extends BMWExtension {
 		}
 	}
 
+	/**
+	 * @param string $name
+	 * @return string Regex
+	 */
 	protected function getParameterRegex( $name ) {
 		if ( $name == 'debug' ) {
 			return "/^[12]$/";
@@ -193,8 +209,15 @@ class BugzillaReports extends BMWExtension {
 		}
 	}
 
+	/**
+	 * Read a value from $wgBugzillaReports or return $default if no such array key is set
+	 *
+	 * @param string $name
+	 * @param string $default Default value, if any
+	 */
 	function getProperty( $name, $default = '' ) {
 		global $wgBugzillaReports;
+
 		$value;
 		if (
 			$this->instanceNameSpace != null &&
@@ -206,18 +229,30 @@ class BugzillaReports extends BMWExtension {
 		} else {
 			$value = $default;
 		}
+
 		$this->debug && $this->debug( "Env property $name=$value" );
+
 		return $value;
 	}
 
+	/**
+	 * @param string $key i18n message key
+	 * @return string Output suitable for both wikitext and HTML
+	 */
 	public function getErrorMessage( $key ) {
 		$args = func_get_args();
 		array_shift( $args );
 		return '<strong class="error">BugzillaReports : ' . wfMessage( $key, $args )->inContentLanguage()->text() . '</strong>';
 	}
 
+	/**
+	 * Enable outputting of raw HTML instead of wikitext?
+	 *
+	 * @param bool $bool
+	 */
 	public function setRawHTML( $bool ) {
 		$this->rawHTML = $bool;
 	}
+
 }
 

@@ -26,6 +26,9 @@ class BugzillaQueryRenderer {
 	public $connector;
 	public $output;
 
+	/**
+	 * @param BugzillaQuery $query
+	 */
 	public function __construct( $query ) {
 		$this->query = $query;
 		$this->context = $query->context;
@@ -35,8 +38,8 @@ class BugzillaQueryRenderer {
 	/**
 	 * Render query record set
 	 *
-	 * @param recordset
-	 * @return rendered markup
+	 * @param PgSql\Result|mysqli_result|false $result
+	 * @return string Rendered HTML markup
 	 */
 	public function renderHTML( $result ) {
 		$this->output = '';
@@ -48,7 +51,7 @@ class BugzillaQueryRenderer {
 			$this->output .= '<h1>' . $this->query->get( 'heading' ) . '</h1>';
 		}
 
-		# Table start
+		// Table start
 		if ( $this->query->get( 'format' ) != 'inline' ) {
 			$this->output .= '<table class="bugzilla';
 			if ( $this->query->is( 'sortable' ) ) {
@@ -64,7 +67,7 @@ class BugzillaQueryRenderer {
 			$this->output .= '>';
 		}
 
-		# Initialise details row logic
+		// Initialise details row logic
 		$detailsRowColumns = [];
 		$arrayOfDetailRowColumns = explode( ',', $this->query->get( 'detailsrow' ) );
 		foreach ( $arrayOfDetailRowColumns as $detailRowColumn ) {
@@ -82,7 +85,7 @@ class BugzillaQueryRenderer {
 			}
 		}
 
-		# Initialise total logic
+		// Initialise total logic
 		$arrayOfTotalColumns;
 		$arrayOfTotals;
 		if ( $this->query->get( 'total' ) ) {
@@ -93,7 +96,7 @@ class BugzillaQueryRenderer {
 			}
 		}
 
-		# Display table header
+		// Display table header
 		if (
 			$this->query->get( 'headers' ) == 'show' ||
 			(
@@ -146,7 +149,7 @@ class BugzillaQueryRenderer {
 			$this->output .= '</tr>';
 		}
 
-		# Create Table Data Rows
+		// Create Table Data Rows
 		$even = true;
 		$count = 0;
 		$localMaxRows = $this->query->getMaxRows();
@@ -159,9 +162,8 @@ class BugzillaQueryRenderer {
 		if ( $this->query->getGroup() ) {
 			$doGrouping = 1;
 			$groups = explode( ',', $this->query->getGroup() );
-			#
-			# Prepare group counters
-			#
+
+			// Prepare group counters
 			foreach ( $groups as $group ) {
 				array_push( $groupValue, '' );
 				array_push( $groupTotal, 0 );
@@ -174,9 +176,7 @@ class BugzillaQueryRenderer {
 		$currentDependsId = 0;
 
 		while ( $line = $this->connector->fetch( $result ) ) {
-			#
-			# Add group heading
-			#
+			// Add group heading
 			if ( $doGrouping ) {
 				$iGroup = 0;
 				foreach ( $groups as $group ) {
@@ -225,9 +225,9 @@ class BugzillaQueryRenderer {
 			}
 			++$count;
 
-			# Safety check break out of loop if there's too much. Only
-			# display warning if max rows has not come the function call, i.e.
-			# user has explicitly truncated
+			// Safety check: break out of loop if there's too much. Only
+			// display warning if max rows has not come the function call, i.e.
+			// user has explicitly truncated
 			if ( $count > $localMaxRows ) {
 				if ( $localMaxRows > $this->query->get( 'maxrows' ) ) {
 					$this->context->warn(
@@ -238,15 +238,13 @@ class BugzillaQueryRenderer {
 				break;
 			}
 
-			#
-			# Only render the row if the ID has changed from previous row
-			# to support LEFT JOINS
-			#
+			// Only render the row if the ID has changed from previous row
+			// to support LEFT JOINs
 			if ( $line['id'] != $currentId ) {
 				$this->context->debug &&
 					$this->context->debug( "Rendering rows $count/$nRows : id =" . $line['id'] );
 
-				# Bar counter
+				// Bar counter
 				if ( $this->query->get( 'bar' ) ) {
 					if ( $count > $localMaxRowsForBarChart ) {
 						$this->context->warn(
@@ -264,7 +262,7 @@ class BugzillaQueryRenderer {
 					continue;
 				}
 
-				# Total counter
+				// Total counter
 				if ( $this->query->get( 'total' ) ) {
 					foreach ( $arrayOfTotalColumns as $totalColumn ) {
 						$value = $line[$this->query->mapField( $totalColumn )];
@@ -286,9 +284,7 @@ class BugzillaQueryRenderer {
 					$class .= 'bz_row_odd';
 				}
 
-				#
-				# Formatting for inline and list
-				#
+				// Formatting for inline and list
 				if ( !$this->query->get( 'hide' ) ) {
 					if ( $this->query->get( 'format' ) == 'list' || $this->query->get( 'format' ) == 'inline' ) {
 						if ( $this->query->get( 'format' ) == 'list' ) {
@@ -320,9 +316,7 @@ class BugzillaQueryRenderer {
 						} else {
 							$this->output .= '</span>';
 						}
-					#
-					# Default formatting
-					#
+					// Default formatting
 					} else {
 						$this->output .= "<tr class=\"{$class}\">";
 						foreach ( $this->query->getColumns() as $column ) {
@@ -365,9 +359,7 @@ class BugzillaQueryRenderer {
 										}
 									}
 
-									#
-									# Render quick flag
-									#
+									// Render quick flag
 									if ( $this->query->isRequired( 'quickflag' ) ) {
 										if ( $line['flagdate'] ) {
 											$this->output .= '<span class="flag" title="Flag : ' . $line['flagdate'] . '">?</span>';
@@ -388,31 +380,25 @@ class BugzillaQueryRenderer {
 				$this->renderDetailsRow( $detailsRowColumns, $line, $this->query->get( 'detailsrowprepend' ) );
 			}
 
-			#
-			# We have LEFT JOIN so we need to ignore repeats
-			#
+			// We have LEFT JOIN so we need to ignore repeats
 			if ( $this->query->get( 'blocks' ) && ( $line['blocks'] != $currentBlocksId ) ) {
 				$currentBlocksId = $line['blocks'];
 				$this->renderDetailsRow( $this->query->blocksRowColumns, $line, '&rArr; ' );
 			}
 
-			#
-			# We have LEFT JOIN so we need to ignore repeats
-			#
+			// We have LEFT JOIN so we need to ignore repeats
 			if ( $this->query->get( 'depends' ) && ( $line['depends'] != $currentDependsId ) ) {
 				$currentDependsId = $line['depends'];
 				$this->renderDetailsRow( $this->query->dependsRowColumns, $line, '&lArr; ' );
 			}
 		}
 
-		# Total counter
+		// Total counter
 		if ( $this->query->get( 'total' ) ) {
 			$this->renderTotal( $arrayOfTotals );
 		}
 
-		#
-		# Display bar
-		#
+		// Display bar
 		if ( $this->query->get( 'bar' ) ) {
 			$this->renderBar( $barArray );
 			$this->output .= "<tr class=\"bz_bar_total\"><td colspan=\""
@@ -420,7 +406,7 @@ class BugzillaQueryRenderer {
 				"\">total</td><td class=\"total\">$nRows</td></tr>";
 		}
 
-		# Table end
+		// Table end
 		if ( $this->query->get( 'format' ) != 'inline' ) {
 			$this->output .= '</table>';
 		}
@@ -428,9 +414,13 @@ class BugzillaQueryRenderer {
 		return $this->output;
 	}
 
-	#
-	# Render a details row
-	#
+	/**
+	 * Render a details row
+	 *
+	 * @param array $array
+	 * @param array $line
+	 * @param string $prepend
+	 */
 	private function renderDetailsRow( $array, $line, $prepend ) {
 		$details = '';
 		$extra = '';
@@ -470,26 +460,22 @@ class BugzillaQueryRenderer {
 		}
 
 		if ( trim( $details ) ) {
-			#
-			# Use the trick in http://meta.wikimedia.org/wiki/Help:Sorting to allow the table
-			# to be sorted
-			#
+			// Use the trick in http://meta.wikimedia.org/wiki/Help:Sorting to allow the table
+			// to be sorted
 			$this->output .= '<tr class="bz_details">';
 			$i = 0;
+
 			foreach ( $this->query->getColumns() as $column ) {
 				$dbColumn = $this->query->mapField( $column );
 				if ( !$this->query->get( 'detailsrow' ) || !array_key_exists( $dbColumn, $detailsRowColumns ) ) {
 					$title = $this->query->getValueTitle( $line, $dbColumn );
 					$value = $this->query->format( $this->query->getDBValue( $line, $dbColumn ), $column, $title );
 
-					#
-					# Putting ZZZ after the value ensures that it sorts after the row this is associated with
+					// Putting ZZZ after the value ensures that it sorts after the row this is associated with
 					$this->output .= "<td><span style=\"display:none\">$value</span>";
 
 					if ( $i == 0 ) {
-						#
-						# Don't close for the last column since we're going to append the details
-						#
+						// Don't close for the last column since we're going to append the details
 						$estimatedWidth = 30 + $this->numberOfMainRowColumns * 5;
 						$this->output .= "<div title=\"$title\" class=\"bz_details\" style=\"margin-left:2em;margin-right:-" . $estimatedWidth . "em;overflow:auto\">";
 						$this->output .= $prepend . $details;
@@ -509,7 +495,11 @@ class BugzillaQueryRenderer {
 		}
 	}
 
-	# Render the totals summary.
+	/**
+	 * Render the totals summary.
+	 *
+	 * @param array $arrayOfTotals
+	 */
 	private function renderTotal( $arrayOfTotals ) {
 		if ( $this->query->get( 'format' ) != 'inline' ) {
 			$this->output .= '<tr class="bz_total">';
@@ -544,6 +534,9 @@ class BugzillaQueryRenderer {
 		}
 	}
 
+	/**
+	 * @param array $barArray
+	 */
 	private function renderBar( $barArray ) {
 		$total = 0;
 		$nonZeroKeyCount = 0;
@@ -612,6 +605,8 @@ class BugzillaQueryRenderer {
 
 	/**
 	 * Render output for no results
+	 *
+	 * @return string
 	 */
 	public function renderNoResultsHTML() {
 		if ( $this->query->get( 'noresultsmessage' ) ) {
@@ -621,9 +616,11 @@ class BugzillaQueryRenderer {
 		}
 	}
 
-	#
-	# Initialise the bar array
-	#
+	/**
+	 * Initialise the bar array
+	 *
+	 * @return array
+	 */
 	private function getBarArray() {
 		$barArray = [];
 		if ( array_key_exists( $this->query->get( 'bar' ), $this->query->fieldValues ) ) {
@@ -639,13 +636,16 @@ class BugzillaQueryRenderer {
 		return $barArray;
 	}
 
-	#
-	# Make markup safe for inclusion in
-	#
-	# (1) Append a "." at the end of wiki style headings so that the markup
-	# does not get interpreted as wiki headings and get included in the TOC
-	# See issue [#22]
-	#
+	/**
+	 * Make markup safe for inclusion in
+	 *
+	 * (1) Append a "." at the end of wiki style headings so that the markup
+	 * does not get interpreted as wiki headings and get included in the TOC
+	 * See issue [#22]
+	 *
+	 * @param string $s
+	 * @return string Sanitized string
+	 */
 	private function makeWikiSafe( $s ) {
 		$s = htmlspecialchars( $s );
 		if ( strpos( $s, '=' ) > -1 ) {
@@ -656,4 +656,5 @@ class BugzillaQueryRenderer {
 		}
 		return $s;
 	}
+
 }
