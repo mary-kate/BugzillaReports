@@ -23,13 +23,13 @@
 $messages = array();
 
 $messages['en'] = array(
-  'bReport_noconnection'          => 'Can\'t get database connection ($1@$2) : $3',
-  'bReport_nodb'              => 'Database not found : $1',
-  'bReport_sqlerror'            => 'Error running the sql : $1'
+	'bReport_noconnection' => 'Can\'t get database connection ($1@$2) : $3',
+	'bReport_nodb' => 'Database not found : $1',
+	'bReport_sqlerror' => 'Error running the sql : $1'
 );
 
 $magicWords = [];
 
 $magicWords['en'] = [
-  'bugzilla' => [ 0, 'bugzilla' ],
+	'bugzilla' => [ 0, 'bugzilla' ],
 ];

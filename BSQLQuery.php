@@ -621,6 +621,7 @@ abstract class BSQLQuery {
 	public function getWhereClause( $match, $name ) {
 		$this->context->debug &&
 			$this->context->debug( "Generating where clause for $name=$match" );
+
 		if ( preg_match( "/^[\*+-]$/", $match ) ) {
 			return $this->getWhereClauseSpecial( $match, $name );
 		} else if ( strstr( $match, ',' ) ) {
@@ -660,16 +661,16 @@ abstract class BSQLQuery {
 	 * Get a int where clause
 	 * ... very simple for now
 	 */
-	public function getIntWhereClause($match,$name) {
-		if (preg_match("/^[\*+-]/",$match)) {
-			switch ($match) {
-				case "+":
+	public function getIntWhereClause( $match, $name ) {
+		if ( preg_match( "/^[\*+-]/", $match ) ) {
+			switch ( $match ) {
+				case '+':
 					return " and $name > 0";
 				default:
-					$this->context->warn("Int match not recognised $name=$match");
+					$this->context->warn( "Int match not recognised $name=$match" );
 			}
 		} else {
-			$this->context->warn("Int match not recognised $name=$match");
+			$this->context->warn( "Int match not recognised $name=$match" );
 			return '';
 		}
 	}
@@ -679,7 +680,7 @@ abstract class BSQLQuery {
 	 * ... very simple for now
 	 */
 	public function getDateWhereClause( $match, $name ) {
-		if ( preg_match( "/:/", $match ) ) {
+		if ( preg_match( '/:/', $match ) ) {
 			$range = explode( ':', $match );
 			if ( $range[0] == '*' ) {
 				return " and $name <='" . $this->getAbsoluteDate( $range[1] ) . "'";
