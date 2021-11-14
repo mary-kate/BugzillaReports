@@ -199,7 +199,7 @@ class BugzillaReports extends BMWExtension {
 		$value;
 		if (
 			$this->instanceNameSpace != null &&
-			array_key_exists($this->instanceNameSpace . ':' . $name, $wgBugzillaReports )
+			array_key_exists( $this->instanceNameSpace . ':' . $name, $wgBugzillaReports )
 		) {
 			$value = $wgBugzillaReports[$this->instanceNameSpace . ':' . $name];
 		} elseif ( array_key_exists( $name, $wgBugzillaReports ) ) {
