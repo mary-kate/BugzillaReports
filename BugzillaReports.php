@@ -214,7 +214,7 @@ class BugzillaReports extends BMWExtension {
 	public function getErrorMessage( $key ) {
 		$args = func_get_args();
 		array_shift( $args );
-		return '<strong class="error">BugzillaReports : ' . wfMsgForContent( $key, $args ) . '</strong>';
+		return '<strong class="error">BugzillaReports : ' . wfMessage( $key, $args )->inContentLanguage()->text() . '</strong>';
 	}
 
 	public function setRawHTML( $bool ) {
