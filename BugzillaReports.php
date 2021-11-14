@@ -23,20 +23,20 @@
 class BugzillaReports extends BMWExtension {
 
 	# The handle on the query object
-	var $query;
+	public $query;
 
 	# Default max rows for a report
-	var $maxrowsFromConfig;
-	var $maxrowsFromConfigDefault = 100;
+	public $maxrowsFromConfig;
+	public $maxrowsFromConfigDefault = 100;
 
-	var $dbdriverDefault = 'mysql';
+	public $dbdriverDefault = 'mysql';
 
 	# Default max rows which are used for aggregation of a bar chart report
-	var $maxrowsForBarChartFromConfig;
-	var $maxrowsForBarChartFromConfigDefault = 500;
+	public $maxrowsForBarChartFromConfig;
+	public $maxrowsForBarChartFromConfigDefault = 500;
 
 	# Output raw HTML (i.e. not Wiki output)
-	var $rawHTML;
+	public $rawHTML;
 
 	public $dbuser, $bzserver, $interwiki;
 	public $database, $host, $password;

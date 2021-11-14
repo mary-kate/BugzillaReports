@@ -21,7 +21,7 @@
  */
 abstract class BMWExtension {
 	public $debug;
-	var $warnings;
+	public $warnings;
 
 	abstract protected function set( $name, $value );
 

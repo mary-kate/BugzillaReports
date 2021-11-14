@@ -21,10 +21,10 @@
  */
 
 class BugzillaQueryRenderer {
-	var $query;
-	var $context;
-	var $connector;
-	var $output;
+	public $query;
+	public $context;
+	public $connector;
+	public $output;
 
 	public function __construct( $query ) {
 		$this->query = $query;

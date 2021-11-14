@@ -20,7 +20,7 @@
  * with this program; if not, see <http://www.gnu.org/licenses>.
  */
 class BugzillaQuery extends BSQLQuery {
-	var $supportedParameters = array(
+	public $supportedParameters = array(
 		'alias'         => 'field-id',
 		'assigned'      => 'field-date',
 		'attachments'   => 'field-number',
@@ -97,7 +97,7 @@ class BugzillaQuery extends BSQLQuery {
 		'zeroasblank'   => 'boolean'    # Render '0' as blank, if false rendered as '0' (default=true)
 	);
 
-	var $defaultParameters = array(
+	public $defaultParameters = array(
 		'bzurl'           => 'show',
 		'columns'         => 'id,priority,status,severity,version,product,summary,url',
 		'customprefix'    => 'cf_',
@@ -168,7 +168,7 @@ class BugzillaQuery extends BSQLQuery {
 		'to'          => 'assignedto',
 	);
 
-	var $fieldSQLColumn = array(
+	public $fieldSQLColumn = array(
 		'assigned'    => 'assignedactivity.bug_when',
 		'attachments' => 'attachments.nattachments',
 		'cc'          => 'ccprofiles.login_name',
@@ -197,7 +197,7 @@ class BugzillaQuery extends BSQLQuery {
 	);
 
 	# Bugzilla Query field names
-	var $fieldBZQuery = array(
+	public $fieldBZQuery = array(
 		'blocks'      => 'blocked',
 		'hardware'    => 'rep_platform',
 		'id'          => 'bug_id',
@@ -209,7 +209,7 @@ class BugzillaQuery extends BSQLQuery {
 		'to'          => 'assigned_to'
 	);
 
-	var $fieldDefaultOrder = array(
+	public $fieldDefaultOrder = array(
 		'modified'    => 'desc',
 		'votes'       => 'desc'
 	);
@@ -239,13 +239,13 @@ class BugzillaQuery extends BSQLQuery {
 		'work'      => 'number'
 	);
 
-	var $fieldValues = array(
+	public $fieldValues = array(
 		'priority'    => 'P1,P2,P3,P4,P5',
 		'status'      => 'ASSIGNED,NEW,REOPENED,RESOLVED,VERIFIED,CLOSED',
 		'severity'    => 'blocker,critical,major,normal,minor,trivial,enhancement'
 	);
 
-	var $sortMapping = array(
+	public $sortMapping = array(
 		'deadline'    => "COALESCE(deadline, '2100-01-01')",
 		'milestone'   => "COALESCE(NULLIF(milestone,'---'),'XXXXX')",
 		'id'          => 'bugs.bug_id'

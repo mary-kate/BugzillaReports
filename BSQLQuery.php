@@ -37,20 +37,20 @@ abstract class BSQLQuery {
 	# Date long time in the future, useful for sorting purposes
 	# when null mapped to this
 	#
-	var $futureDate = '2100-01-01';
+	public $futureDate = '2100-01-01';
+
 	#
 	# Work out what db data is required and record in
 	# $fieldsRequired array so we can optimise the SQL
 	# ... no point in wasting energy
 	#
-
-	var $fieldsRequired = array();
+	public $fieldsRequired = array();
 
 	# Cached array of columns that we actually want to render
-	var $columnsToRender;
+	public $columnsToRender;
 
 	# Number of columns in a report
-	var $numberOfMainRowColumns;
+	public $numberOfMainRowColumns;
 
 	# Columns implicitly removed or added, note that explict setting
 	# overrides this
@@ -59,10 +59,10 @@ abstract class BSQLQuery {
 
 	# Columns implicitly sort and order, note that explict setting
 	# overrides this
-	var $implicitParameters = array();
+	public $implicitParameters = array();
 
 	# Cached versions so we only calculate once
-	var $cache = array();
+	public $cache = array();
 
 	abstract protected function getFormats();
 	abstract protected function getDefaultSort();
