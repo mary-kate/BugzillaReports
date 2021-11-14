@@ -556,7 +556,7 @@ class BugzillaQueryRenderer {
 		$keyCount = count( $arrayKeys );
 		if ( $keyCount > 6 ) {
 			$classColourCode = 'some';
-		} else if ( $keyCount > 10 ) {
+		} elseif ( $keyCount > 10 ) {
 			$classColourCode = 'many';
 		}
 

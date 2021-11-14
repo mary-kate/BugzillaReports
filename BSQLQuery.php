@@ -318,23 +318,23 @@ abstract class BSQLQuery {
 		}
 		if ( date( 'Y-m-d', $value ) == $this->bsql_cache['yesterday'] ) {
 			return 'yesterday';
-		} else if ( $value < ( time() - 86400 ) ) {
+		} elseif ( $value < ( time() - 86400 ) ) {
 			return 'overdue';
-		} else if ( date( 'Y-m-d', $value ) == $this->bsql_cache['today'] ) {
+		} elseif ( date( 'Y-m-d', $value ) == $this->bsql_cache['today'] ) {
 			return 'today';
-		} else if ( date( 'Y-m-d', $value ) == $this->bsql_cache['tomorrow'] ) {
+		} elseif ( date( 'Y-m-d', $value ) == $this->bsql_cache['tomorrow'] ) {
 			return 'tomorrow';
-		} else if ( date( 'Y-W', $value ) == $this->bsql_cache['thisweek'] ) {
+		} elseif ( date( 'Y-W', $value ) == $this->bsql_cache['thisweek'] ) {
 			return 'this week';
-		} else if ( date( 'Y-W', $value ) == $this->bsql_cache['nextweek'] ) {
+		} elseif ( date( 'Y-W', $value ) == $this->bsql_cache['nextweek'] ) {
 			return 'next week';
-		} else if ( date( 'Y-m', $value ) == $this->bsql_cache['thismonth'] ) {
+		} elseif ( date( 'Y-m', $value ) == $this->bsql_cache['thismonth'] ) {
 			return 'this month';
-		} else if ( date( 'Y-m', $value ) == $this->bsql_cache['nextmonth'] ) {
+		} elseif ( date( 'Y-m', $value ) == $this->bsql_cache['nextmonth'] ) {
 			return 'next month';
-		} else if ( date( 'Y', $value ) == $this->bsql_cache['thisyear'] ) {
+		} elseif ( date( 'Y', $value ) == $this->bsql_cache['thisyear'] ) {
 			return 'this year';
-		} else if ( date( 'Y', $value ) == $this->bsql_cache['nextyear'] ) {
+		} elseif ( date( 'Y', $value ) == $this->bsql_cache['nextyear'] ) {
 			return 'next year';
 		} else {
 			return 'years away';
@@ -428,7 +428,7 @@ abstract class BSQLQuery {
 					if ( $time == strtotime( $this->futureDate ) ) {
 						return '';
 					} else {
-						$formattedDate = date( 'Y-m-d',strtotime( $value ) );
+						$formattedDate = date( 'Y-m-d', strtotime( $value ) );
 					}
 					return $formattedDate;
 				} else {
@@ -561,7 +561,7 @@ abstract class BSQLQuery {
 		} else {
 			if ( strlen( $names[1] ) > 1 ) {
 				$tla = substr( $names[0], 0, 1 ) . substr( $names[1], 0, 2 );
-			} else if ( strlen( $name[0] > 1 ) ) {
+			} elseif ( strlen( $name[0] > 1 ) ) {
 				$tla = substr( $names[0], 0, 2 ) . substr( $names[1], 0, 1 );
 			} else {
 				$tla = $names[0] . $names[1] . 'A';
@@ -624,7 +624,7 @@ abstract class BSQLQuery {
 
 		if ( preg_match( "/^[\*+-]$/", $match ) ) {
 			return $this->getWhereClauseSpecial( $match, $name );
-		} else if ( strstr( $match, ',' ) ) {
+		} elseif ( strstr( $match, ',' ) ) {
 			$pos = strpos( $match, '!(' );
 			$where = ' and (';
 			$operator;
@@ -684,23 +684,23 @@ abstract class BSQLQuery {
 			$range = explode( ':', $match );
 			if ( $range[0] == '*' ) {
 				return " and $name <='" . $this->getAbsoluteDate( $range[1] ) . "'";
-			} else if ( $range[1] == '*' ) {
+			} elseif ( $range[1] == '*' ) {
 				return " and $name >='" . $this->getAbsoluteDate( $range[0] ) . "'";
 			} else {
 				return " and $name >='" . $this->getAbsoluteDate( $range[0] ) .
 					"' and $name <='" . $this->getAbsoluteDate( $range[1] ) . "'";
 			}
-		} else if ( preg_match( "/^[\+](.+)/", $match ) ) {
+		} elseif ( preg_match( "/^[\+](.+)/", $match ) ) {
 			#
 			# Search for anything before the date in the future
 			#
 			return " and $name <='" . $this->getAbsoluteDate( $match ) . "'";
-		} else if ( preg_match( "/^[-](.+)/", $match ) ) {
+		} elseif ( preg_match( "/^[-](.+)/", $match ) ) {
 			#
 			# Search for anything after the date in past
 			#
 			return " and $name >='" . $this->getAbsoluteDate( $match ) . "'";
-		} else if ( preg_match( "/^[\*+-]/", $match ) ) {
+		} elseif ( preg_match( "/^[\*+-]/", $match ) ) {
 			return $this->getWhereClauseSpecial( $match, $name );
 		} else {
 			$this->context->warn( "Date match not recognised $name=$match" );
@@ -790,7 +790,7 @@ abstract class BSQLQuery {
 			$sort;
 			if ( $this->getExplicit( 'sort' ) ) {
 				$sort = $this->getExplicit( 'sort' );
-			} else if ( $this->getImplicit( 'sort' ) ) {
+			} elseif ( $this->getImplicit( 'sort' ) ) {
 				# Implicit on usage and other function call parameters
 				$sort = $this->getImplicit( 'sort' );
 			} else {
@@ -853,7 +853,7 @@ abstract class BSQLQuery {
 			$order;
 			if ( $this->getExplicit( 'order' ) ) {
 				$order = $this->getExplicit( 'order' );
-			} else if ( $this->getImplicit( 'order' ) ) {
+			} elseif ( $this->getImplicit( 'order' ) ) {
 				$order = $this->getImplicit( 'order' );
 			} else {
 				$order = $this->getDefault( 'order' );
@@ -877,7 +877,7 @@ abstract class BSQLQuery {
 			$order;
 			if ( $this->getExplicit( 'grouporder' ) ) {
 				$order = $this->getExplicit( 'grouporder' );
-			} else if ( $this->getImplicit( 'grouporder' ) ) {
+			} elseif ( $this->getImplicit( 'grouporder' ) ) {
 				$order = $this->getImplicit( 'grouporder' );
 			} else {
 				$order = $this->getDefault( 'grouporder' );
@@ -902,7 +902,7 @@ abstract class BSQLQuery {
 			if ( $this->getExplicit( 'group' ) ) {
 				# Explicit on function call
 				$group = $this->getExplicit( 'group' );
-			} else if ( $this->getImplicit( 'group' ) ) {
+			} elseif ( $this->getImplicit( 'group' ) ) {
 				# Implicit on usage and other function call parameters
 				$group = $this->getImplicit( 'group' );
 			} else {
@@ -974,7 +974,7 @@ abstract class BSQLQuery {
 								$this->context->debug( "Removing implicit removal of column : $newColumn" );
 							unset( $this->implicityRemovedColumns[$newColumn] );
 						}
-					} else if ( $operation == '-' ) {
+					} elseif ( $operation == '-' ) {
 						$found = -1;
 						$i = 0;
 

@@ -479,7 +479,7 @@ class BugzillaQuery extends BSQLQuery {
 							);
 						}
 					}
-				} else if ( $type == 'field-keywords' ) {
+				} elseif ( $type == 'field-keywords' ) {
 					$where .= 'and EXISTS (SELECT keywordid,keywords.bug_id from ' .
 							$this->connector->getTable( 'keywords' ) . ' as keywords ' .
 							' LEFT JOIN ' .
@@ -589,7 +589,7 @@ class BugzillaQuery extends BSQLQuery {
 			}
 			$sql .= ', flagprofiles.flagname as flagname';
 			$sql .= ', flagprofiles.flagdate as flagdate';
-		} else if ( $this->isRequired( 'quickflag' ) ) {
+		} elseif ( $this->isRequired( 'quickflag' ) ) {
 			$sql .= ', quickflag.flagdate as flagdate';
 		}
 		if ( $this->isRequired( 'estimated' ) ) {
@@ -771,7 +771,7 @@ class BugzillaQuery extends BSQLQuery {
 			}
 			$sql .= ') as ' .
 				'flagprofiles on flagprofiles.bug_id=bugs.bug_id';
-		} else if ( $this->isRequired( 'quickflag' ) ) {
+		} elseif ( $this->isRequired( 'quickflag' ) ) {
 			$sql .= ' LEFT JOIN (SELECT bug_id as quickflagbugid, MAX(creation_date) as flagdate from ' .
 				$this->connector->getTable( 'flags' ) .
 				" where status='?' group by quickflagbugid) as " .

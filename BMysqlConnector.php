@@ -1,6 +1,6 @@
 <?php
 /*
-Mysql connector
+MySQL connector
 */
 
 /**
@@ -74,10 +74,10 @@ class BMysqlConnector {
 				" - this probably means your username and password set in the variable wgBugzillaReports are not correct."
 			) );
 			$db = null;
-		} else if ( $db->error ) {
+		} elseif ( $db->error ) {
 			$this->setError( $this->context->getErrorMessage( 'bReport_nodb' ), $db->error );
 			$db = null;
-		} else if ( $this->getRowCount( $result ) != 1 ) {
+		} elseif ( $this->getRowCount( $result ) != 1 ) {
 			$this->setError( $this->context->getErrorMessage(
 				'bReport_nodb',
 				"`" . $this->context->database . "`-" . $this->getRowCount( $result )
