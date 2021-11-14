@@ -54,7 +54,6 @@ class BugzillaReports extends BMWExtension {
 	public static function parserFirstCallInit( Parser $parser ) {
 		$parser->setHook( 'bugzilla', 'BugzillaReports::parserHook' );
 		$parser->setFunctionHook( 'bugzilla', 'BugzillaReports::parserFunctionHook' );
-		return true;
 	}
 
 	/**
