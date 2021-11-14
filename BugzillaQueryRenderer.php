@@ -326,7 +326,7 @@ class BugzillaQueryRenderer {
 						$this->output .= "<tr class=\"{$class}\">";
 						foreach ( $this->query->getColumns() as $column ) {
 							$dbColumn = $this->query->mapField( $column );
-							if ( !$this->query->get( 'detailsrow' ) or !array_key_exists( $dbColumn, $detailsRowColumns ) ) {
+							if ( !$this->query->get( 'detailsrow' ) || !array_key_exists( $dbColumn, $detailsRowColumns ) ) {
 								$title = $this->query->getValueTitle( $line, $dbColumn );
 								$value = $this->query->format( $this->query->getDBValue( $line, $dbColumn ), $column, $title );
 								$this->output .= '<td';
@@ -340,7 +340,7 @@ class BugzillaQueryRenderer {
 									 * Start with a carriage return so that comments starting with
 									 * list characters, e.g. *, # render in wiki style
 									 */
-									if ( $this->query->get( 'lastcomment' ) or $this->query->get( 'keywords' ) ) {
+									if ( $this->query->get( 'lastcomment' ) || $this->query->get( 'keywords' ) ) {
 										$lastcomment = '';
 										$keywords = '';
 										if ( $this->query->get( 'lastcomment' ) ) {
@@ -353,7 +353,7 @@ class BugzillaQueryRenderer {
 												''
 											);
 										}
-										if ( strlen( $lastcomment ) > 0 or strlen( $keywords ) > 0 ) {
+										if ( strlen( $lastcomment ) > 0 || strlen( $keywords ) > 0 ) {
 											$this->output .= '*<div class="bz_comment">';
 											if ( $keywords ) {
 												$this->output .= "<span class=\"bz_keyword\">$keywords</span>";
@@ -477,7 +477,7 @@ class BugzillaQueryRenderer {
 			$i = 0;
 			foreach ( $this->query->getColumns() as $column ) {
 				$dbColumn = $this->query->mapField( $column );
-				if ( !$this->query->get( 'detailsrow' ) or !array_key_exists( $dbColumn, $detailsRowColumns ) ) {
+				if ( !$this->query->get( 'detailsrow' ) || !array_key_exists( $dbColumn, $detailsRowColumns ) ) {
 					$title = $this->query->getValueTitle( $line, $dbColumn );
 					$value = $this->query->format( $this->query->getDBValue( $line, $dbColumn ), $column, $title );
 
