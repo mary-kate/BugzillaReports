@@ -1008,7 +1008,7 @@ abstract class BSQLQuery {
 				# We may have removed values from the columns so we need to
 				# recreate array by calling array_values function
 				#
-				$this->columnsToRender = $this->array_fill_keys(
+				$this->columnsToRender = array_fill_keys(
 					array_merge(
 						$this->applyImplicitColumns( array_values( $baseColumns ) ),
 						$newColumns
@@ -1068,7 +1068,7 @@ abstract class BSQLQuery {
 	# Apply implicit column rules
 	#
 	private function applyImplicitColumns( $columns ) {
-		$newColumns = $this->array_fill_keys( array_merge(
+		$newColumns = array_fill_keys( array_merge(
 			$columns,
 			array_keys( $this->implicityAddedColumns )
 		) );
@@ -1088,22 +1088,6 @@ abstract class BSQLQuery {
 		}
 
 		return array_keys( $newColumns );
-	}
-
-	#
-	# Local implementation of array_fill_keys since it's only supported
-	# from php 5.2
-	#
-	private function array_fill_keys( $array, $value = null ) {
-		$newArray = [];
-		foreach ( $array as $key ) {
-			if ( $value ) {
-				$newArray[$key] = $value;
-			} else {
-				$newArray[$key] = $key;
-			}
-		}
-		return $newArray;
 	}
 
 	#
