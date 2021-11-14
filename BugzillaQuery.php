@@ -391,7 +391,7 @@ class BugzillaQuery extends BSQLQuery {
 			$this->context->debug && $this->context->debug( 'Freeing up db result' );
 			$this->connector->free( $result );
 		} else {
-			return $this->context->getErrorMessage( 'bReport_sqlerror',
+			return $this->context->getErrorMessage( 'bugzillareports-sql-error',
 				$sql . ' ' . $this->connector->getDbError( $db ) );
 		}
 

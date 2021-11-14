@@ -5,7 +5,7 @@
 			"Martin Sugioarto"
 		]
 	},
-	"bReport_noconnection": "Can't get database connection ($1@$2) : $3",
-	"bReport_nodb": "Database not found : $1",
-	"bReport_sqlerror": "Error running the sql : $1"
+	"bugzillareports-no-connection": "Can't get database connection ($1@$2): $3",
+	"bugzillareports-no-db": "Database not found: $1",
+	"bugzillareports-sql-error": "Error running the SQL query: $1"
 }

@@ -35,7 +35,7 @@ class BMysqlConnector {
 		if ( $db->connect_errno ) {
 			$this->setError(
 				$this->context->getErrorMessage(
-					'bReport_noconnection',
+					'bugzillareports-no-connection',
 					$this->context->dbuser,
 					$this->context->host,
 					$db->connect_error
@@ -55,18 +55,18 @@ class BMysqlConnector {
 		$result = $db->query( $sql );
 
 		if ( !$result ) {
-			$this->setError( $this->context->getErrorMessage( 'bReport_nodb',
+			$this->setError( $this->context->getErrorMessage( 'bugzillareports-no-db',
 				"Can't find test table 'priority' in database ".
 				"`" . $this->context->database . "` using " . $sql .
 				" - this probably means your username and password set in the variable wgBugzillaReports are not correct."
 			) );
 			$db = null;
 		} elseif ( $db->error ) {
-			$this->setError( $this->context->getErrorMessage( 'bReport_nodb' ), $db->error );
+			$this->setError( $this->context->getErrorMessage( 'bugzillareports-no-db' ), $db->error );
 			$db = null;
 		} elseif ( $this->getRowCount( $result ) != 1 ) {
 			$this->setError( $this->context->getErrorMessage(
-				'bReport_nodb',
+				'bugzillareports-no-db',
 				"`" . $this->context->database . "`-" . $this->getRowCount( $result )
 			) );
 			$db = null;

@@ -50,7 +50,7 @@ class BPGConnector {
 		if ( !$db ) {
 			$this->setError(
 				$this->context->getErrorMessage(
-					'bReport_noconnection',
+					'bugzillareports-no-connection',
 					$this->context->dbuser,
 					$this->context->host,
 					pg_last_error()
@@ -61,7 +61,7 @@ class BPGConnector {
 
 		if ( !pg_dbname( $db ) ) {
 			$this->close( $db );
-			$this->setError( $this->context->getErrorMessage( 'bReport_nodb' ) );
+			$this->setError( $this->context->getErrorMessage( 'bugzillareports-no-db' ) );
 			return false;
 		}
 
