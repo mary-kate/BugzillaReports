@@ -24,4 +24,3 @@ require_once("BMysqlConnector.php");
 require_once("BPGConnector.php");
 require_once("BugzillaReport.php");
 require_once("BugzillaQueryRenderer.php");
-?>

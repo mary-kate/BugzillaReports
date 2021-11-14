@@ -35,4 +35,3 @@ class BParser {
 		$this->mOutput = new BOutput();
 	}
 }
-?>

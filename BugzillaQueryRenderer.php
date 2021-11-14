@@ -656,4 +656,3 @@ class BugzillaQueryRenderer {
 		return $s;
 	}
 }
-?>

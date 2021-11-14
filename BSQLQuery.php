@@ -1181,4 +1181,3 @@ abstract class BSQLQuery {
 		return $line[$column];
 	}
 }
-?>

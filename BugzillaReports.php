@@ -221,4 +221,4 @@ class BugzillaReports extends BMWExtension {
 		$this->rawHTML = $bool;
 	}
 }
-?>
+
