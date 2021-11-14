@@ -95,10 +95,13 @@ class BugzillaQueryRenderer {
 
 		# Display table header
 		if (
-			$this->query->get( 'headers' ) == 'show' || ( !$this->query->get( 'bar' ) &&
+			$this->query->get( 'headers' ) == 'show' ||
+			(
+				!$this->query->get( 'bar' ) &&
 				$this->query->get( 'format' ) == 'table' &&
 				$this->query->get( 'headers' ) != 'hide' &&
-				!$this->query->explitlyOneValue )
+				!$this->query->explitlyOneValue
+			)
 		) {
 			$this->output .= '<tr>';
 
