@@ -53,9 +53,7 @@
 				"password": "(your password)",
 				"bzserver": "https://bugzilla.example.com"
 			},
-			"path": false,
 			"description": "Database configuration and world-facing public URL for your Bugzilla installation",
-			"public": false,
 			"merge_strategy": "array_plus_2d"
 		}
 	},
